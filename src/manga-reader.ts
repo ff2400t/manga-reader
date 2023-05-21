@@ -22,6 +22,16 @@ export class MangaReader extends LitElement {
   @property()
   currentPage: number = 1;
 
+  connectedCallback() {
+    super.connectedCallback()
+    addEventListener('keydown', this.#keyHandler.bind(this))
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    removeEventListener('keydown', this.#keyHandler.bind(this))
+  }
+
   render() {
     const classes = {
       horizontal: this.mode === 'horizontal',
@@ -51,7 +61,6 @@ export class MangaReader extends LitElement {
           const currentPage = this.currentPage - 1;
           this.gotoPage(currentPage)
           this.currentPage = currentPage
-
         }
         if (event.clientX > middle && this.currentPage < this.pages.length) {
           const currentPage = this.currentPage + 1;
@@ -71,6 +80,41 @@ export class MangaReader extends LitElement {
         break;
       default:
         throw Error("This is not a valid mode for manga-reader")
+    }
+  }
+
+  #keyHandler(event: KeyboardEvent) {
+    switch (this.mode) {
+      case 'horizontal': {
+        if (event.key === "ArrowLeft" && this.currentPage > 1) {
+          const currentPage = this.currentPage - 1;
+          this.gotoPage(currentPage)
+          this.currentPage = currentPage
+        }
+        else if (event.key === "ArrowRight" && this.currentPage < this.pages.length) {
+          const currentPage = this.currentPage + 1;
+          this.gotoPage(currentPage)
+          this.currentPage = currentPage
+        }
+      }
+        break;
+      case 'vertical': {
+        if (event.key === "ArrowUp") {
+          const middle = window.innerHeight / 2
+          this.containerRef.value?.scrollBy({
+            top: -1 * middle,
+            behavior: 'smooth'
+          })
+        }
+        else if (event.key === "ArrowDown") {
+          const middle = window.innerHeight / 2
+          this.containerRef.value?.scrollBy({
+            top: middle,
+            behavior: 'smooth'
+          })
+        }
+      }
+        break;
     }
   }
 
