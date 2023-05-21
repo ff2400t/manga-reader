@@ -6,18 +6,26 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vite + Lit + TS</title>
-  <link rel="stylesheet" href="./src/index.css" />
   <script type="module" src="/src/manga-reader.ts"></script>
+  <style>
+   body { 
+      padding: 0;
+      margin: 0; 
+      background-color: black;
+    }
+  </style>
 </head>
 
 <body>
-  <manga-reader>
+  <manga-reader mode='vertical'>
   </manga-reader>
   <script>
 
     const reader = document.querySelector('manga-reader');
+    const mode = 'horizontal'
 
-    reader.pages = Array.from({length: 9}).map((_, i) => `/horizontal/00${i+1}.jpg`)
+    reader.pages = Array.from({length: 9}).map((_, i) => `/${mode}/00${i+1}.jpg`)
+    reader.mode = mode
 
   </script>
 </body>
