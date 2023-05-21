@@ -44,7 +44,6 @@ export class MangaReader extends LitElement {
   }
 
   #clickHandler(event: MouseEvent) {
-    console.log(this.currentPage)
     switch (this.mode) {
       case 'horizontal': {
         const middle = window.innerWidth / 2
@@ -54,14 +53,20 @@ export class MangaReader extends LitElement {
           this.currentPage = currentPage
 
         }
-       if (event.clientX > middle && this.currentPage < this.pages.length) {
+        if (event.clientX > middle && this.currentPage < this.pages.length) {
           const currentPage = this.currentPage + 1;
           this.gotoPage(currentPage)
           this.currentPage = currentPage
-        } 
+        }
       }
         break;
       case 'vertical': {
+        const middle = window.innerHeight / 2
+        const scrollAmount = middle * (event.clientY < middle ? -1 : 1)
+        this.containerRef.value?.scrollBy({
+          top: scrollAmount,
+          behavior: 'smooth'
+        })
       }
         break;
       default:
@@ -104,7 +109,9 @@ export class MangaReader extends LitElement {
 
   .container.vertical {
     width: 100vw;
-    justify-items: center
+    height: 100vh;
+    justify-items: center;
+    overflow-y: scroll;
   }
 
   .vertical .page {
