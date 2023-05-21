@@ -1,6 +1,7 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
+import { Ref, createRef, ref } from 'lit/directives/ref.js';
 
 type mode = 'horizontal' | 'vertical'
 
@@ -10,11 +11,16 @@ type mode = 'horizontal' | 'vertical'
 @customElement('manga-reader')
 export class MangaReader extends LitElement {
 
+  containerRef: Ref<HTMLDivElement> = createRef();
+
   @property()
   pages: string[] = [];
 
   @property()
   mode: mode = 'horizontal'
+
+  @property()
+  currentPage: number = 1;
 
   render() {
     const classes = {
@@ -22,13 +28,45 @@ export class MangaReader extends LitElement {
       vertical: this.mode === 'vertical'
     }
     return html`
-        <div class='container ${classMap(classes)}'>
-          ${this.pages.map(url => html`
-        <div class='page'>
+        <div ${ref(this.containerRef)} @click=${this.#clickHandler} class='container ${classMap(classes)}'>
+          ${this.pages.map((url, index) => html`
+        <div class='page' data-page-no=${index + 1}>
           <img src=${url} />
         </div>`)}
         </div>
       `
+  }
+
+  gotoPage(num: number) {
+    if (num < 1 || num > this.pages.length) return;
+    const selector = `[data-page-no="${num}"]`
+    this.containerRef.value?.querySelector(selector)?.scrollIntoView()
+  }
+
+  #clickHandler(event: MouseEvent) {
+    console.log(this.currentPage)
+    switch (this.mode) {
+      case 'horizontal': {
+        const middle = window.innerWidth / 2
+        if (event.clientX < middle && this.currentPage > 1) {
+          const currentPage = this.currentPage - 1;
+          this.gotoPage(currentPage)
+          this.currentPage = currentPage
+
+        }
+       if (event.clientX > middle && this.currentPage < this.pages.length) {
+          const currentPage = this.currentPage + 1;
+          this.gotoPage(currentPage)
+          this.currentPage = currentPage
+        } 
+      }
+        break;
+      case 'vertical': {
+      }
+        break;
+      default:
+        throw Error("This is not a valid mode for manga-reader")
+    }
   }
 
   static styles = css`
