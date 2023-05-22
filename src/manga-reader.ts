@@ -1,4 +1,4 @@
-import { LitElement, PropertyValues, css, html } from 'lit'
+import { LitElement, PropertyValueMap, PropertyValues, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
@@ -22,6 +22,8 @@ export class MangaReader extends LitElement {
   @property()
   currentPage: number = 1;
 
+  observer!: IntersectionObserver;
+
   connectedCallback() {
     super.connectedCallback()
     addEventListener('keydown', this.#keyHandler.bind(this))
@@ -43,6 +45,15 @@ export class MangaReader extends LitElement {
     }
   }
 
+  updated(changedProperties: PropertyValueMap<any>) {
+    console.log(changedProperties)
+    if (changedProperties.has("mode")) {
+      // entered into horizontal mode
+      if (this.mode === 'horizontal') this.setUpHorizontalIntersectionObserver()
+      // exited horizontal mode
+      else if (changedProperties.get('mode') === 'horizontal') this.observer.disconnect() 
+    }
+  }
 
   render() {
     const classes = {
@@ -129,6 +140,22 @@ export class MangaReader extends LitElement {
         break;
     }
   }
+
+  setUpHorizontalIntersectionObserver() {
+    this.observer = new IntersectionObserver((entries) => {
+      for (const el of entries) {
+        if (el.isIntersecting && el.target instanceof HTMLElement) {
+          if (this.currentPage !== +el.target.dataset?.pageNo!) {
+            this.currentPage = +el.target.dataset?.pageNo!
+          }
+        }
+      }
+    }, {
+      root: this.containerRef.value,
+      threshold: 0.75
+    })
+    this.containerRef.value?.querySelectorAll('div[data-page-no]').forEach(el => this.observer.observe(el))
+  }  
 
   static styles = css`
 
