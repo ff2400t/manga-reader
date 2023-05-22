@@ -46,12 +46,11 @@ export class MangaReader extends LitElement {
   }
 
   updated(changedProperties: PropertyValueMap<any>) {
-    console.log(changedProperties)
     if (changedProperties.has("mode")) {
-      // entered into horizontal mode
+      // the nullish operator is here to prevent it from exploding on the first render
+      this.observer?.disconnect()
       if (this.mode === 'horizontal') this.setUpHorizontalIntersectionObserver()
-      // exited horizontal mode
-      else if (changedProperties.get('mode') === 'horizontal') this.observer.disconnect() 
+      else if (this.mode === 'vertical') this.setUpVerticalIntersectionObserver()
     }
   }
 
@@ -65,6 +64,7 @@ export class MangaReader extends LitElement {
           ${this.pages.map((url, index) => html`
         <div class='page' data-page-no=${index + 1}>
           <img src=${url} />
+        ${this.mode === 'vertical' && html`<div data-v-page-no=${index + 1}></div>`}
         </div>`)}
         </div>
       `
@@ -155,7 +155,23 @@ export class MangaReader extends LitElement {
       threshold: 0.75
     })
     this.containerRef.value?.querySelectorAll('div[data-page-no]').forEach(el => this.observer.observe(el))
-  }  
+  }
+
+  setUpVerticalIntersectionObserver() {
+    this.observer = new IntersectionObserver((entries) => {
+      for (const el of entries) {
+        if (el.isIntersecting && el.target instanceof HTMLElement) {
+          if (this.currentPage !== +el.target.dataset?.pageNo!) {
+            this.currentPage = +el.target.dataset?.pageNo!
+          }
+        }
+      }
+    }, {
+      root: this.containerRef.value,
+    })
+    this.containerRef.value?.querySelectorAll('[data-v-page-no]').forEach(el => this.observer.observe(el))
+  }
+
 
   static styles = css`
 
@@ -200,7 +216,8 @@ export class MangaReader extends LitElement {
   .vertical .page {
     width: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: center; 
   }
 
   .vertical .page img {
