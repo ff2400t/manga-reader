@@ -63,10 +63,13 @@ export class MangaReader extends LitElement {
    * Go to a Page with a particular page number
    * This will return Boolean to indicate whether the page change was successfull
    */
-  gotoPage(num: number): boolean {
+  gotoPage(num: number) {
     if (num < 1 || num > this.pages.length) return false;
     const selector = `[data-page-no="${num}"]`
-    this.containerRef.value?.querySelector(selector)?.scrollIntoView()
+    const page = this.containerRef.value?.querySelector(selector)
+    if (!page) return false
+    page.scrollIntoView()
+    this.currentPage = num
     return true
   }
 
@@ -75,12 +78,10 @@ export class MangaReader extends LitElement {
       case 'horizontal': {
         const middle = window.innerWidth / 2
         if (event.clientX < middle) {
-          const currentPage = this.currentPage - 1;
-          if (this.gotoPage(currentPage)) this.currentPage = currentPage
+          this.gotoPage(this.currentPage - 1)
         }
         if (event.clientX > middle) {
-          const currentPage = this.currentPage + 1;
-          if (this.gotoPage(currentPage)) this.currentPage = currentPage
+          this.gotoPage(this.currentPage + 1)
         }
       }
         break;
@@ -101,15 +102,11 @@ export class MangaReader extends LitElement {
   #keyHandler(event: KeyboardEvent) {
     switch (this.mode) {
       case 'horizontal': {
-        if (event.key === "ArrowLeft" && this.currentPage > 1) {
-          const currentPage = this.currentPage - 1;
-          this.gotoPage(currentPage)
-          this.currentPage = currentPage
+        if (event.key === "ArrowLeft") {
+          this.gotoPage(this.currentPage + 1)
         }
-        else if (event.key === "ArrowRight" && this.currentPage < this.pages.length) {
-          const currentPage = this.currentPage + 1;
-          this.gotoPage(currentPage)
-          this.currentPage = currentPage
+        else if (event.key === "ArrowRight") {
+          this.gotoPage(this.currentPage + 1)
         }
       }
         break;
