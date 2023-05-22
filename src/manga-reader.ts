@@ -37,6 +37,13 @@ export class MangaReader extends LitElement {
     return true
   }
 
+  attributeChangedCallback(name: string, _: string, newValue: string) {
+    if (name === 'currentpage') {
+      if (this.gotoPage(+newValue)) this.currentPage = +newValue
+    }
+  }
+
+
   render() {
     const classes = {
       horizontal: this.mode === 'horizontal',
@@ -52,25 +59,28 @@ export class MangaReader extends LitElement {
       `
   }
 
-  gotoPage(num: number) {
-    if (num < 1 || num > this.pages.length) return;
+  /**
+   * Go to a Page with a particular page number
+   * This will return Boolean to indicate whether the page change was successfull
+   */
+  gotoPage(num: number): boolean {
+    if (num < 1 || num > this.pages.length) return false;
     const selector = `[data-page-no="${num}"]`
     this.containerRef.value?.querySelector(selector)?.scrollIntoView()
+    return true
   }
 
   #clickHandler(event: MouseEvent) {
     switch (this.mode) {
       case 'horizontal': {
         const middle = window.innerWidth / 2
-        if (event.clientX < middle && this.currentPage > 1) {
+        if (event.clientX < middle) {
           const currentPage = this.currentPage - 1;
-          this.gotoPage(currentPage)
-          this.currentPage = currentPage
+          if (this.gotoPage(currentPage)) this.currentPage = currentPage
         }
-        if (event.clientX > middle && this.currentPage < this.pages.length) {
+        if (event.clientX > middle) {
           const currentPage = this.currentPage + 1;
-          this.gotoPage(currentPage)
-          this.currentPage = currentPage
+          if (this.gotoPage(currentPage)) this.currentPage = currentPage
         }
       }
         break;
