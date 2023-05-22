@@ -1,4 +1,4 @@
-import { LitElement, css, html } from 'lit'
+import { LitElement, PropertyValues, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
@@ -30,6 +30,11 @@ export class MangaReader extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback();
     removeEventListener('keydown', this.#keyHandler.bind(this))
+  }
+
+  shouldUpdate(changedProperties: PropertyValues<this>) {
+    if (changedProperties.size === 1 && changedProperties.has("currentPage")) return false
+    return true
   }
 
   render() {
