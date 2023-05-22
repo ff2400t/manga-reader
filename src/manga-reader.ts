@@ -114,7 +114,7 @@ export class MangaReader extends LitElement {
     switch (this.mode) {
       case 'horizontal': {
         if (event.key === "ArrowLeft") {
-          this.gotoPage(this.currentPage + 1)
+          this.gotoPage(this.currentPage - 1)
         }
         else if (event.key === "ArrowRight") {
           this.gotoPage(this.currentPage + 1)
