@@ -67,10 +67,10 @@ export class MangaReader extends LitElement {
           dir=${this.mode === 'horizontal-rtl' ? 'rtl' : 'ltr'}
           >
           ${this.pages.map((url, index) => html`
-        <div class='page' data-page-no=${index + 1}>
-          <img src=${url} />
-        ${this.mode === 'vertical' && html`<div data-v-page-no=${index + 1}></div>`}
-        </div>`)}
+            <div class='page' data-page-no=${index + 1}>
+              <img src=${url} />
+            ${this.mode === 'vertical' && html`<div data-v-page-no=${index + 1}></div>`}
+          </div>`)}
         </div>
       `
   }
@@ -90,78 +90,47 @@ export class MangaReader extends LitElement {
   }
 
   #clickHandler(event: MouseEvent) {
-    switch (this.mode) {
-      case 'horizontal-ltr': {
-        const middle = window.innerWidth / 2
-        if (event.clientX < middle) {
-          this.gotoPage(this.currentPage - 1)
-        }
-        if (event.clientX > middle) {
-          this.gotoPage(this.currentPage + 1)
-        }
+    if (this.mode.startsWith('horizontal')) {
+      const middle = window.innerWidth / 2
+      let change = event.clientX < middle ? -1 : 1;
+      change *= this.mode.endsWith('rtl') ? -1 : 1
+      this.gotoPage(this.currentPage + change)
+    }
+    else if ('vertical') {
+      const middle = window.innerHeight / 2
+      const scrollAmount = middle * (event.clientY < middle ? -1 : 1)
+      this.containerRef.value?.scrollBy({
+        top: scrollAmount,
+        behavior: 'smooth'
+      })
+    }
+  }
+
+  #keyHandler(event: KeyboardEvent) {
+    const key = event.key
+    if (this.mode.startsWith('horizontal')) {
+      let change;
+      if (key === "ArrowLeft") change = -1
+      else if (key === "ArrowRight") change = 1
+      if (change !== undefined) {
+        change *= this.mode.endsWith('rtl') ? -1 : 1
+        this.gotoPage(this.currentPage + change)
       }
-        break;
-      case 'horizontal-rtl': {
-        const middle = window.innerWidth / 2
-        if (event.clientX < middle) {
-          this.gotoPage(this.currentPage + 1)
-        }
-        if (event.clientX > middle) {
-          this.gotoPage(this.currentPage - 1)
-        }
+    }
+    else if ('vertical') {
+      const scrollAmount = window.innerHeight / 2
+      if (key === "ArrowUp") {
+        this.containerRef.value?.scrollBy({
+          top: -1 * scrollAmount,
+          behavior: 'smooth'
+        })
       }
-        break;
-      case 'vertical': {
-        const middle = window.innerHeight / 2
-        const scrollAmount = middle * (event.clientY < middle ? -1 : 1)
+      else if (key === "ArrowDown") {
         this.containerRef.value?.scrollBy({
           top: scrollAmount,
           behavior: 'smooth'
         })
       }
-        break;
-      default:
-        throw Error("This is not a valid mode for manga-reader")
-    }
-  }
-
-  #keyHandler(event: KeyboardEvent) {
-    switch (this.mode) {
-      case 'horizontal-ltr': {
-        if (event.key === "ArrowLeft") {
-          this.gotoPage(this.currentPage - 1)
-        }
-        else if (event.key === "ArrowRight") {
-          this.gotoPage(this.currentPage + 1)
-        }
-      }
-        break;
-      case 'horizontal-rtl': {
-        if (event.key === "ArrowLeft") {
-          this.gotoPage(this.currentPage + 1)
-        }
-        else if (event.key === "ArrowRight") {
-          this.gotoPage(this.currentPage - 1)
-        }
-      }
-        break;
-      case 'vertical': {
-        if (event.key === "ArrowUp") {
-          const middle = window.innerHeight / 2
-          this.containerRef.value?.scrollBy({
-            top: -1 * middle,
-            behavior: 'smooth'
-          })
-        }
-        else if (event.key === "ArrowDown") {
-          const middle = window.innerHeight / 2
-          this.containerRef.value?.scrollBy({
-            top: middle,
-            behavior: 'smooth'
-          })
-        }
-      }
-        break;
     }
   }
 
