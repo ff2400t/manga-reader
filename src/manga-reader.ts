@@ -1,7 +1,7 @@
 import { LitElement, PropertyValueMap, PropertyValues, css, html, nothing } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
-import { Ref, createRef, ref } from 'lit/directives/ref.js';
+// import { Ref, createRef, ref } from 'lit/directives/ref.js';
 
 type mode = 'horizontal-rtl' | 'horizontal-ltr' | 'vertical'
 
@@ -11,8 +11,6 @@ type mode = 'horizontal-rtl' | 'horizontal-ltr' | 'vertical'
 @customElement('manga-reader')
 export class MangaReader extends LitElement {
 
-  containerRef: Ref<HTMLDivElement> = createRef();
-
   @property()
   pages: string[] = [];
 
@@ -21,6 +19,9 @@ export class MangaReader extends LitElement {
 
   @property()
   currentPage: number = 1;
+
+  @query('#container', true)
+  container!: HTMLDivElement; 
 
   observer!: IntersectionObserver;
 
@@ -61,9 +62,9 @@ export class MangaReader extends LitElement {
     }
     return html`
         <div 
-          ${ref(this.containerRef)}
           @click=${this.#clickHandler}
-          class='container ${classMap(classes)}'
+          id='container'
+          class='${classMap(classes)}'
           dir=${this.mode === 'horizontal-rtl' ? 'rtl' : 'ltr'}
           >
           ${this.pages.map((url, index) => html`
@@ -85,7 +86,7 @@ export class MangaReader extends LitElement {
   gotoPage(num: number) {
     if (num < 1 || num > this.pages.length) return false;
     const selector = `[data-page-no="${num}"]`
-    const page = this.containerRef.value?.querySelector(selector)
+    const page = this.container.querySelector(selector)
     if (!page) return false
     page.scrollIntoView()
     this.currentPage = num
@@ -102,7 +103,7 @@ export class MangaReader extends LitElement {
     else if ('vertical') {
       const middle = window.innerHeight / 2
       const scrollAmount = middle * (event.clientY < middle ? -1 : 1)
-      this.containerRef.value?.scrollBy({
+      this.container.scrollBy({
         top: scrollAmount,
         behavior: 'smooth'
       })
@@ -123,13 +124,13 @@ export class MangaReader extends LitElement {
     else if ('vertical') {
       const scrollAmount = window.innerHeight / 2
       if (key === "ArrowUp") {
-        this.containerRef.value?.scrollBy({
+        this.container.scrollBy({
           top: -1 * scrollAmount,
           behavior: 'smooth'
         })
       }
       else if (key === "ArrowDown") {
-        this.containerRef.value?.scrollBy({
+        this.container.scrollBy({
           top: scrollAmount,
           behavior: 'smooth'
         })
@@ -147,10 +148,10 @@ export class MangaReader extends LitElement {
         }
       }
     }, {
-      root: this.containerRef.value,
+      root: this.container,
       threshold: 0.75
     })
-    this.containerRef.value?.querySelectorAll('div[data-page-no]').forEach(el => this.observer.observe(el))
+    this.container.querySelectorAll('div[data-page-no]').forEach(el => this.observer.observe(el))
   }
 
   setUpVerticalIntersectionObserver() {
@@ -163,9 +164,9 @@ export class MangaReader extends LitElement {
         }
       }
     }, {
-      root: this.containerRef.value,
+      root: this.container,
     })
-    this.containerRef.value?.querySelectorAll('[data-v-page-no]').forEach(el => this.observer.observe(el))
+    this.container.querySelectorAll('[data-v-page-no]').forEach(el => this.observer.observe(el))
   }
 
 
@@ -175,12 +176,12 @@ export class MangaReader extends LitElement {
     overflow: hidden;
   }
 
-  .container{
+  #container{
     container: mr / inline-size; 
     display: grid;
   }
 
-  .container.horizontal {
+  #container.horizontal {
     overflow-x: scroll;
     scroll-snap-type: x mandatory;
     grid-auto-flow: column;
@@ -202,7 +203,7 @@ export class MangaReader extends LitElement {
     height: 100%;
   }
 
-  .container.vertical {
+  #container.vertical {
     width: 100vw;
     height: 100vh;
     justify-items: center;
