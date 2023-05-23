@@ -17,7 +17,7 @@
 </head>
 
 <body>
-  <manga-reader mode='vertical'>
+  <manga-reader >
   </manga-reader>
   <script>
 
@@ -25,7 +25,7 @@
     const mode = 'horizontal'
 
     reader.pages = Array.from({length: 9}).map((_, i) => `/${mode}/00${i+1}.jpg`)
-    reader.mode = mode
+    reader.mode = mode+ '-rtl'
 
   </script>
 </body>

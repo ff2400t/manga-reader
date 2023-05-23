@@ -3,7 +3,7 @@ import { customElement, property } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
 
-type mode = 'horizontal' | 'vertical'
+type mode = 'horizontal-rtl' | 'horizontal-ltr' | 'vertical'
 
 /**
  * Manga Reader component
@@ -17,7 +17,7 @@ export class MangaReader extends LitElement {
   pages: string[] = [];
 
   @property()
-  mode: mode = 'horizontal'
+  mode: mode = 'horizontal-rtl'
 
   @property()
   currentPage: number = 1;
@@ -49,18 +49,23 @@ export class MangaReader extends LitElement {
     if (changedProperties.has("mode")) {
       // the nullish operator is here to prevent it from exploding on the first render
       this.observer?.disconnect()
-      if (this.mode === 'horizontal') this.setUpHorizontalIntersectionObserver()
+      if (this.mode.startsWith('horizontal')) this.setUpHorizontalIntersectionObserver()
       else if (this.mode === 'vertical') this.setUpVerticalIntersectionObserver()
     }
   }
 
   render() {
     const classes = {
-      horizontal: this.mode === 'horizontal',
+      horizontal: this.mode.startsWith('horizontal'),
       vertical: this.mode === 'vertical'
     }
     return html`
-        <div ${ref(this.containerRef)} @click=${this.#clickHandler} class='container ${classMap(classes)}'>
+        <div 
+          ${ref(this.containerRef)}
+          @click=${this.#clickHandler}
+          class='container ${classMap(classes)}'
+          dir=${this.mode === 'horizontal-rtl' ? 'rtl' : 'ltr'}
+          >
           ${this.pages.map((url, index) => html`
         <div class='page' data-page-no=${index + 1}>
           <img src=${url} />
@@ -86,13 +91,23 @@ export class MangaReader extends LitElement {
 
   #clickHandler(event: MouseEvent) {
     switch (this.mode) {
-      case 'horizontal': {
+      case 'horizontal-ltr': {
         const middle = window.innerWidth / 2
         if (event.clientX < middle) {
           this.gotoPage(this.currentPage - 1)
         }
         if (event.clientX > middle) {
           this.gotoPage(this.currentPage + 1)
+        }
+      }
+        break;
+      case 'horizontal-rtl': {
+        const middle = window.innerWidth / 2
+        if (event.clientX < middle) {
+          this.gotoPage(this.currentPage + 1)
+        }
+        if (event.clientX > middle) {
+          this.gotoPage(this.currentPage - 1)
         }
       }
         break;
@@ -112,12 +127,21 @@ export class MangaReader extends LitElement {
 
   #keyHandler(event: KeyboardEvent) {
     switch (this.mode) {
-      case 'horizontal': {
+      case 'horizontal-ltr': {
         if (event.key === "ArrowLeft") {
           this.gotoPage(this.currentPage - 1)
         }
         else if (event.key === "ArrowRight") {
           this.gotoPage(this.currentPage + 1)
+        }
+      }
+        break;
+      case 'horizontal-rtl': {
+        if (event.key === "ArrowLeft") {
+          this.gotoPage(this.currentPage + 1)
+        }
+        else if (event.key === "ArrowRight") {
+          this.gotoPage(this.currentPage - 1)
         }
       }
         break;
