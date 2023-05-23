@@ -1,4 +1,4 @@
-import { LitElement, PropertyValueMap, PropertyValues, css, html } from 'lit'
+import { LitElement, PropertyValueMap, PropertyValues, css, html, nothing } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
@@ -69,7 +69,10 @@ export class MangaReader extends LitElement {
           ${this.pages.map((url, index) => html`
             <div class='page' data-page-no=${index + 1}>
               <img src=${url} />
-            ${this.mode === 'vertical' && html`<div data-v-page-no=${index + 1}></div>`}
+            ${this.mode === 'vertical' ?
+              html`<div data-v-page-no=${index + 1}></div>`
+              : nothing
+            }
           </div>`)}
         </div>
       `
