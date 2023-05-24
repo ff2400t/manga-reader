@@ -3,7 +3,8 @@ import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
 // import { Ref, createRef, ref } from 'lit/directives/ref.js';
 
-type mode = 'horizontal-rtl' | 'horizontal-ltr' | 'vertical'
+type Mode = 'horizontal-rtl' | 'horizontal-ltr' | 'vertical';
+type ScaleType = 'fitWidth' | 'fitHeight';
 
 /**
  * Manga Reader component
@@ -15,13 +16,16 @@ export class MangaReader extends LitElement {
   pages: string[] = [];
 
   @property()
-  mode: mode = 'horizontal-rtl'
+  mode: Mode = 'horizontal-rtl'
 
-  @property()
+  @property({ attribute: 'current-page' })
   currentPage: number = 1;
 
+  @property()
+  scaleType: ScaleType = 'fitWidth'
+
   @query('#container', true)
-  container!: HTMLDivElement; 
+  container!: HTMLDivElement;
 
   observer!: IntersectionObserver;
 
@@ -66,14 +70,15 @@ export class MangaReader extends LitElement {
           id='container'
           class='${classMap(classes)}'
           dir=${this.mode === 'horizontal-rtl' ? 'rtl' : 'ltr'}
+          data-scale-type=${this.scaleType}
           >
           ${this.pages.map((url, index) => html`
             <div class='page' data-page-no=${index + 1}>
               <img src=${url} />
             ${this.mode === 'vertical' ?
-              html`<div data-v-page-no=${index + 1}></div>`
-              : nothing
-            }
+        html`<div data-v-page-no=${index + 1}></div>`
+        : nothing
+      }
           </div>`)}
         </div>
       `
@@ -223,7 +228,21 @@ export class MangaReader extends LitElement {
     height: 100%;
   }
 
-    
+  /*
+  fitHeight is the Default mode for Horizontal Reader so we just
+  don't add any additional css to make that work
+  */
+
+  .horizontal[data-scale-type="fitWidth"] .page {
+    height: auto;
+  }
+
+  .horizontal[data-scale-type="fitWidth"] .page  img{
+    width: 100%; 
+  }  
+
+  
+  
   `
 }
 
