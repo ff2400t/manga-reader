@@ -89,11 +89,9 @@ export class MangaReader extends LitElement {
    * This will return Boolean to indicate whether the page change was successfull
    */
   gotoPage(num: number) {
-    if (num < 1 || num > this.pages.length) return false;
-    const selector = `[data-page-no="${num}"]`
-    const page = this.container.querySelector(selector)
-    if (!page) return false
-    page.scrollIntoView()
+    if (num < 1 || num > this.pages.length) return false; 
+    const page = this.#getPage(num)
+    page?.scrollIntoView()
     this.currentPage = num
     return true
   }
@@ -147,8 +145,10 @@ export class MangaReader extends LitElement {
     this.observer = new IntersectionObserver((entries) => {
       for (const el of entries) {
         if (el.isIntersecting && el.target instanceof HTMLElement) {
-          if (this.currentPage !== +el.target.dataset?.pageNo!) {
-            this.currentPage = +el.target.dataset?.pageNo!
+          const pageNo = +el.target.dataset?.pageNo!
+          if (this.currentPage !== pageNo) {
+            this.currentPage = pageNo
+            this.#scrollReset()
           }
         }
       }
@@ -172,6 +172,25 @@ export class MangaReader extends LitElement {
       root: this.container,
     })
     this.container.querySelectorAll('[data-v-page-no]').forEach(el => this.observer.observe(el))
+  }
+
+  /*
+  ** This resets the Scroll position for the elements 2 elements before and after the current page
+  ** So if the current page is 1, it will set the scroll position for page 3 to 0
+  ** and if page is 5, it reset the scroll positions for page 3 and 7
+  */
+  #scrollReset() {
+    const num = this.currentPage;
+    if (num > 2) {
+      this.#getPage(num - 2)!.scrollTop =  0
+    }
+    if (num < this.pages.length - 1) {
+      this.#getPage(num + 2)!.scrollTop =  0
+    }
+  }
+
+  #getPage(num){
+    return this.container.querySelector(`[data-page-no="${num}"]`)
   }
 
 
