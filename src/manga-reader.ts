@@ -27,6 +27,13 @@ export class MangaReader extends LitElement {
   @query('#container', true)
   container!: HTMLDivElement;
 
+  /**
+   * Amount to scroll during a click event in vertical Mode
+   * Number between 0 and 1
+   */
+  @property()
+  verticalScrollAmount = 0.75
+
   observer!: IntersectionObserver;
 
   connectedCallback() {
@@ -104,7 +111,7 @@ export class MangaReader extends LitElement {
       this.gotoPage(this.currentPage + change)
     }
     else if ('vertical') {
-      const middle = window.innerHeight / 2
+      const middle = window.innerHeight * this.verticalScrollAmount
       const scrollAmount = middle * (event.clientY < middle ? -1 : 1)
       this.container.scrollBy({
         top: scrollAmount,
@@ -125,7 +132,7 @@ export class MangaReader extends LitElement {
       }
     }
     else if ('vertical') {
-      const scrollAmount = window.innerHeight / 2
+      const scrollAmount = window.innerHeight * this.verticalScrollAmount
       if (key === "ArrowUp") {
         this.container.scrollBy({
           top: -1 * scrollAmount,
@@ -189,7 +196,7 @@ export class MangaReader extends LitElement {
     }
   }
 
-  #getPage(num){
+  #getPage(num: number | string){
     return this.container.querySelector(`[data-page-no="${num}"]`)
   }
 

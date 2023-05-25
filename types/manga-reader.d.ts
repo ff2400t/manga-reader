@@ -11,6 +11,11 @@ export declare class MangaReader extends LitElement {
     currentPage: number;
     scaleType: ScaleType;
     container: HTMLDivElement;
+    /**
+     * Amount to scroll during a click event in vertical Mode
+     * Number between 0 and 1
+     */
+    verticalScrollAmount: number;
     observer: IntersectionObserver;
     connectedCallback(): void;
     disconnectedCallback(): void;
