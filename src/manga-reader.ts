@@ -234,11 +234,12 @@ export class MangaReader extends LitElement {
   */
 
   .horizontal[data-scale-type="fitWidth"] .page {
-    height: auto;
+    display: block;
   }
 
   .horizontal[data-scale-type="fitWidth"] .page  img{
     width: 100%; 
+    height: auto;
   }  
 
   
