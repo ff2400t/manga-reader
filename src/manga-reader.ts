@@ -16,13 +16,13 @@ export class MangaReader extends LitElement {
   pages: string[] = [];
 
   @property()
-  mode: Mode = 'horizontal-rtl'
+  mode: Mode = 'horizontal-ltr'
 
   @property({ attribute: 'current-page' })
   currentPage: number = 1;
 
   @property()
-  scaleType: ScaleType = 'fitWidth'
+  scaleType: ScaleType = 'fitHeight'
 
   @query('#container', true)
   container!: HTMLDivElement;
