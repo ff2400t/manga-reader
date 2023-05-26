@@ -249,7 +249,8 @@ export class MangaReader extends LitElement {
     if (num > 2) {
       this.#getPage(num - 2)!.scrollTop = 0
     }
-    if (num < this.pages.length - 1) {
+    const arr = this.#isDoublePageMode() ? this.doublePagedArr : this.pages
+    if (num < arr.length - 1) {
       this.#getPage(num + 2)!.scrollTop = 0
     }
   }
@@ -260,7 +261,6 @@ export class MangaReader extends LitElement {
 
   #preloadImages() {
     const image = this.#getPage(this.currentPage)?.firstElementChild as HTMLImageElement
-    console.log(image)
     // this is so that if current page is loaded we move on to loading the others right away
     if (image.complete) this.#preloadCallBack()
     // this is so that the current page loads before loading others
