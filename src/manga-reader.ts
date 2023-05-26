@@ -3,7 +3,8 @@ import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
 // import { Ref, createRef, ref } from 'lit/directives/ref.js';
 
-type Mode = 'horizontal-rtl' | 'horizontal-ltr' | 'vertical';
+type Mode = 'horizontal' | 'vertical';
+type ReadingDirection = 'rtl' | 'ltr'
 type ScaleType = 'fitWidth' | 'fitHeight';
 
 /**
@@ -16,7 +17,10 @@ export class MangaReader extends LitElement {
   pages: string[] = [];
 
   @property()
-  mode: Mode = 'horizontal-ltr'
+  mode: Mode = 'horizontal'
+
+  @property()
+  dir: ReadingDirection = 'ltr'
 
   @property({ attribute: 'current-page' })
   currentPage: number = 1;
@@ -61,14 +65,14 @@ export class MangaReader extends LitElement {
     if (changedProperties.has("mode")) {
       // the nullish operator is here to prevent it from exploding on the first render
       this.observer?.disconnect()
-      if (this.mode.startsWith('horizontal')) this.setUpHorizontalIntersectionObserver()
+      if (this.mode === 'horizontal') this.setUpHorizontalIntersectionObserver()
       else if (this.mode === 'vertical') this.setUpVerticalIntersectionObserver()
     }
   }
 
   render() {
     const classes = {
-      horizontal: this.mode.startsWith('horizontal'),
+      horizontal: this.mode === 'horizontal',
       vertical: this.mode === 'vertical'
     }
     return html`
@@ -76,7 +80,7 @@ export class MangaReader extends LitElement {
           @click=${this.#clickHandler}
           id='container'
           class='${classMap(classes)}'
-          dir=${this.mode === 'horizontal-rtl' ? 'rtl' : 'ltr'}
+          dir=${this.dir}
           data-scale-type=${this.scaleType}
           >
           ${this.pages.map((url, index) => html`
@@ -104,10 +108,10 @@ export class MangaReader extends LitElement {
   }
 
   #clickHandler(event: MouseEvent) {
-    if (this.mode.startsWith('horizontal')) {
+    if (this.mode === 'horizontal') {
       const middle = window.innerWidth / 2
       let change = event.clientX < middle ? -1 : 1;
-      change *= this.mode.endsWith('rtl') ? -1 : 1
+      change *= this.dir === 'rtl' ? -1 : 1
       this.gotoPage(this.currentPage + change)
     }
     else if ('vertical') {
@@ -122,12 +126,12 @@ export class MangaReader extends LitElement {
 
   #keyHandler(event: KeyboardEvent) {
     const key = event.key
-    if (this.mode.startsWith('horizontal')) {
+    if (this.mode= 'horizontal') {
       let change;
       if (key === "ArrowLeft") change = -1
       else if (key === "ArrowRight") change = 1
       if (change !== undefined) {
-        change *= this.mode.endsWith('rtl') ? -1 : 1
+        change *= this.dir === 'rtl' ? -1 : 1
         this.gotoPage(this.currentPage + change)
       }
     }
