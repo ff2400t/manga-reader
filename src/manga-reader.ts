@@ -300,6 +300,7 @@ export class MangaReader extends LitElement {
     display: block;
     width: auto;
     height: 100%;
+    margin-block:auto;
   }
 
   .horizontal .page img:first-child{
@@ -338,8 +339,7 @@ export class MangaReader extends LitElement {
   .horizontal[data-scale-type="fitWidth"] .page  img{
     width: 100%; 
     height: auto;
-  }   
-  
+  }    
   `
 }
 
