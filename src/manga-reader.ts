@@ -1,5 +1,5 @@
 import { LitElement, PropertyValueMap, PropertyValues, css, html, nothing } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { customElement, property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
 // import { Ref, createRef, ref } from 'lit/directives/ref.js';
 
@@ -38,6 +38,9 @@ export class MangaReader extends LitElement {
   @query('#container', true)
   container!: HTMLDivElement;
 
+  @state()
+  doublePagedArr: Array<{ url: string, index: number }[]> = []
+
   /**
    * Amount to scroll during a click event in vertical Mode
    * Number between 0 and 1
@@ -62,6 +65,24 @@ export class MangaReader extends LitElement {
     return true
   }
 
+  willUpdate(changedProperties: PropertyValues<this>) {
+    // when we have just changed to doublePagedMode
+    // this is to cache and prevent unnecessary renders
+    if (changedProperties.has('mode') && this.#isDoublePageMode()) {
+      if (this.doublePagedArr.length === 0) {
+        const arr = []
+        const isOdd = this.mode.endsWith('odd');
+        if (isOdd) arr.push([{ url: this.pages[0], index: 1 }])
+        for (let i = isOdd ? 1 : 0; i < this.pages.length; i += 2) {
+          const temp = [{ url: this.pages[i], index: i + 1 }];
+          if (this.pages.length > i + 1) temp.push({ url: this.pages[i + 1], index: i + 2 })
+          arr.push(temp)
+        }
+        this.doublePagedArr = arr
+      }
+    }
+  }
+
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     if (name === 'currentpage') {
       if (this.gotoPage(+newValue)) this.currentPage = +newValue
@@ -82,7 +103,7 @@ export class MangaReader extends LitElement {
   #listTemplate() {
     return this.pages.map((url, index) => html`
       <div class='page' data-page-no=${index + 1}>
-        <img loading='lazy' src=${url} />
+        <img id="page-${index}" loading='lazy' src=${url} />
         ${this.mode === 'vertical'
         ? html`<div data-v-page-no=${index + 1}></div>`
         : nothing
@@ -91,19 +112,10 @@ export class MangaReader extends LitElement {
   }
 
   #doublePageTemplate() {
-    const arr: Array<string[]> = []
-
-    const isOdd = this.mode.endsWith('odd');
-    if (isOdd) arr.push([this.pages[0]])
-    for (let i = isOdd ? 1 : 0; i < this.pages.length; i += 2) {
-      const temp = [this.pages[i]];
-      if (this.pages.length > i + 1) temp.push(this.pages[i + 1])
-      arr.push(temp)
-    }
-
-    return arr.map((arr, index) => html`
+    return this.doublePagedArr.map((arr, index) => html`
       <div class='page' data-page-no=${index + 1}>
-      ${arr.map((url) => html`<img loading='lazy' src=${url} />`)} 
+      ${arr.map(({ url, index }) =>
+      html`<img id="page-${index}" loading='lazy' src=${url} />`)} 
         ${this.mode === 'vertical'
         ? html`<div data-v-page-no=${index + 1}></div>`
         : nothing
@@ -248,6 +260,7 @@ export class MangaReader extends LitElement {
 
   #preloadImages() {
     const image = this.#getPage(this.currentPage)?.firstElementChild as HTMLImageElement
+    console.log(image)
     // this is so that if current page is loaded we move on to loading the others right away
     if (image.complete) this.#preloadCallBack()
     // this is so that the current page loads before loading others
@@ -257,8 +270,8 @@ export class MangaReader extends LitElement {
   #preloadCallBack() {
     let num = 1
     while (num <= this.preloadNo) {
-      const elm = (this.#getPage(this.currentPage + num)?.firstElementChild as HTMLImageElement)
-      if (!elm.complete) elm.loading = 'eager'
+      const image = (this.container.querySelector('#page-' + (this.currentPage + num)) as HTMLImageElement)
+      if (image && !image.complete) image.loading = 'eager'
       num++
     }
   }
