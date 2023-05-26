@@ -22,7 +22,7 @@ export class MangaReader extends LitElement {
   @property()
   dir: ReadingDirection = 'ltr'
 
-  @property({ attribute: 'current-page' })
+  @property({ attribute: 'current-page', type: Number })
   currentPage: number = 1;
 
   @property()
@@ -55,10 +55,12 @@ export class MangaReader extends LitElement {
     return true
   }
 
-  attributeChangedCallback(name: string, _: string, newValue: string) {
+  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     if (name === 'currentpage') {
       if (this.gotoPage(+newValue)) this.currentPage = +newValue
+      return;
     }
+    super.attributeChangedCallback(name, oldValue, newValue)
   }
 
   updated(changedProperties: PropertyValueMap<any>) {
