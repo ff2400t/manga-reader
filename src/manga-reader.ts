@@ -30,6 +30,7 @@ export class MangaReader extends LitElement {
 
   /**
    * No of images to preload after the current Image
+   * The default is to preload the next page
    */
   @property()
   preloadNo: number = 1;
@@ -216,6 +217,14 @@ export class MangaReader extends LitElement {
   }
 
   #preloadImages() {
+    const image = this.#getPage(this.currentPage)?.firstElementChild as HTMLImageElement
+    // this is so that if current page is loaded we move on to loading the others right away
+    if (image.complete)  this.#preloadCallBack() 
+    // this is so that the current page loads before loading others
+    image.addEventListener('load', () => this.#preloadCallBack())
+  }
+
+  #preloadCallBack() {
     let num = 1
     while (num <= this.preloadNo) {
       const elm = (this.#getPage(this.currentPage + num)?.firstElementChild as HTMLImageElement)
