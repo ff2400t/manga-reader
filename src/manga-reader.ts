@@ -74,7 +74,7 @@ export class MangaReader extends LitElement {
     if (changedProperties.has("mode")) {
       // the nullish operator is here to prevent it from exploding on the first render
       this.observer?.disconnect()
-      if (this.mode === 'horizontal') this.setUpHorizontalIntersectionObserver()
+      if (this.mode === 'horizontal' || this.#isDoublePageMode()) this.setUpHorizontalIntersectionObserver()
       else if (this.mode === 'vertical') this.setUpVerticalIntersectionObserver()
     }
   }
@@ -112,7 +112,7 @@ export class MangaReader extends LitElement {
   }
 
   render() {
-    const isDoublePageMode = this.mode.startsWith('double-page')
+    const isDoublePageMode = this.#isDoublePageMode()
     const classes = {
       horizontal: this.mode === 'horizontal' || isDoublePageMode,
       vertical: this.mode === 'vertical',
@@ -147,7 +147,7 @@ export class MangaReader extends LitElement {
   }
 
   #clickHandler(event: MouseEvent) {
-    if (this.mode === 'horizontal') {
+    if (this.mode === 'horizontal' || this.#isDoublePageMode()) {
       const middle = window.innerWidth / 2
       let change = event.clientX < middle ? -1 : 1;
       change *= this.dir === 'rtl' ? -1 : 1
@@ -165,7 +165,7 @@ export class MangaReader extends LitElement {
 
   #keyHandler(event: KeyboardEvent) {
     const key = event.key
-    if (this.mode === 'horizontal') {
+    if (this.mode === 'horizontal' || this.#isDoublePageMode()) {
       let change;
       if (key === "ArrowLeft") change = -1
       else if (key === "ArrowRight") change = 1
@@ -261,6 +261,10 @@ export class MangaReader extends LitElement {
       if (!elm.complete) elm.loading = 'eager'
       num++
     }
+  }
+
+  #isDoublePageMode() {
+    return this.mode.startsWith('double-page')
   }
 
 
