@@ -3,7 +3,7 @@ import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
 // import { Ref, createRef, ref } from 'lit/directives/ref.js';
 
-type Mode = 'horizontal' | 'vertical';
+type Mode = 'horizontal' | 'vertical' | 'double-page' | 'double-page-odd';
 type ReadingDirection = 'rtl' | 'ltr'
 type ScaleType = 'fitWidth' | 'fitHeight';
 
@@ -79,10 +79,44 @@ export class MangaReader extends LitElement {
     }
   }
 
+  #listTemplate() {
+    return this.pages.map((url, index) => html`
+      <div class='page' data-page-no=${index + 1}>
+        <img loading='lazy' src=${url} />
+        ${this.mode === 'vertical'
+        ? html`<div data-v-page-no=${index + 1}></div>`
+        : nothing
+      }
+      </div>`)
+  }
+
+  #doublePageTemplate() {
+    const arr: Array<string[]> = []
+
+    const isOdd = this.mode.endsWith('odd');
+    if (isOdd) arr.push([this.pages[0]])
+    for (let i = isOdd ? 1 : 0; i < this.pages.length; i += 2) {
+      const temp = [this.pages[i]];
+      if (this.pages.length > i + 1) temp.push(this.pages[i + 1])
+      arr.push(temp)
+    }
+
+    return arr.map((arr, index) => html`
+      <div class='page' data-page-no=${index + 1}>
+      ${arr.map((url) => html`<img loading='lazy' src=${url} />`)} 
+        ${this.mode === 'vertical'
+        ? html`<div data-v-page-no=${index + 1}></div>`
+        : nothing
+      }
+      </div>`)
+  }
+
   render() {
+    const isDoublePageMode = this.mode.startsWith('double-page')
     const classes = {
-      horizontal: this.mode === 'horizontal',
-      vertical: this.mode === 'vertical'
+      horizontal: this.mode === 'horizontal' || isDoublePageMode,
+      vertical: this.mode === 'vertical',
+      'double-page': isDoublePageMode
     }
     return html`
         <div 
@@ -92,14 +126,10 @@ export class MangaReader extends LitElement {
           dir=${this.dir}
           data-scale-type=${this.scaleType}
           >
-          ${this.pages.map((url, index) => html`
-            <div class='page' data-page-no=${index + 1}>
-              <img loading='lazy' src=${url} />
-            ${this.mode === 'vertical' ?
-        html`<div data-v-page-no=${index + 1}></div>`
-        : nothing
+          ${isDoublePageMode
+        ? this.#doublePageTemplate()
+        : this.#listTemplate()
       }
-          </div>`)}
         </div>
       `
   }
@@ -135,7 +165,7 @@ export class MangaReader extends LitElement {
 
   #keyHandler(event: KeyboardEvent) {
     const key = event.key
-    if (this.mode = 'horizontal') {
+    if (this.mode === 'horizontal') {
       let change;
       if (key === "ArrowLeft") change = -1
       else if (key === "ArrowRight") change = 1
@@ -219,7 +249,7 @@ export class MangaReader extends LitElement {
   #preloadImages() {
     const image = this.#getPage(this.currentPage)?.firstElementChild as HTMLImageElement
     // this is so that if current page is loaded we move on to loading the others right away
-    if (image.complete)  this.#preloadCallBack() 
+    if (image.complete) this.#preloadCallBack()
     // this is so that the current page loads before loading others
     image.addEventListener('load', () => this.#preloadCallBack())
   }
@@ -257,8 +287,13 @@ export class MangaReader extends LitElement {
     width: 100vw;
     height: 100vh;
     overflow-y: scroll;
-    display: flex;
-    justify-content: center;
+    display: flex;  
+  /*
+   There is a problem with scrolling when this is used, this can be resolved with
+   using the safe keyword but chrome and safari don't support that yet;
+   so instead we are using margin for solving this and 
+   justify-content: center;
+  */
   }
   
   .horizontal .page img {
@@ -267,6 +302,14 @@ export class MangaReader extends LitElement {
     height: 100%;
   }
 
+  .horizontal .page img:first-child{
+    margin-left: auto;
+  }
+
+ .horizontal .page img:last-child {
+    margin-right: auto;
+  }
+  
   #container.vertical {
     width: 100vw;
     height: 100vh;
@@ -290,18 +333,12 @@ export class MangaReader extends LitElement {
   /*
   fitHeight is the Default mode for Horizontal Reader so we just
   don't add any additional css to make that work
-  */
-
-  .horizontal[data-scale-type="fitWidth"] .page {
-    display: block;
-  }
+  */ 
 
   .horizontal[data-scale-type="fitWidth"] .page  img{
     width: 100%; 
     height: auto;
-  }  
-
-  
+  }   
   
   `
 }
