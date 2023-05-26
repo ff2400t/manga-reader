@@ -28,6 +28,12 @@ export class MangaReader extends LitElement {
   @property()
   scaleType: ScaleType = 'fitHeight'
 
+  /**
+   * No of images to preload after the current Image
+   */
+  @property()
+  preloadNo: number = 1;
+
   @query('#container', true)
   container!: HTMLDivElement;
 
@@ -87,7 +93,7 @@ export class MangaReader extends LitElement {
           >
           ${this.pages.map((url, index) => html`
             <div class='page' data-page-no=${index + 1}>
-              <img src=${url} />
+              <img loading='lazy' src=${url} />
             ${this.mode === 'vertical' ?
         html`<div data-v-page-no=${index + 1}></div>`
         : nothing
@@ -102,7 +108,7 @@ export class MangaReader extends LitElement {
    * This will return Boolean to indicate whether the page change was successfull
    */
   gotoPage(num: number) {
-    if (num < 1 || num > this.pages.length) return false; 
+    if (num < 1 || num > this.pages.length) return false;
     const page = this.#getPage(num)
     page?.scrollIntoView()
     this.currentPage = num
@@ -128,7 +134,7 @@ export class MangaReader extends LitElement {
 
   #keyHandler(event: KeyboardEvent) {
     const key = event.key
-    if (this.mode= 'horizontal') {
+    if (this.mode = 'horizontal') {
       let change;
       if (key === "ArrowLeft") change = -1
       else if (key === "ArrowRight") change = 1
@@ -162,6 +168,7 @@ export class MangaReader extends LitElement {
           if (this.currentPage !== pageNo) {
             this.currentPage = pageNo
             this.#scrollReset()
+            this.#preloadImages()
           }
         }
       }
@@ -176,8 +183,10 @@ export class MangaReader extends LitElement {
     this.observer = new IntersectionObserver((entries) => {
       for (const el of entries) {
         if (el.isIntersecting && el.target instanceof HTMLElement) {
-          if (this.currentPage !== +el.target.dataset?.pageNo!) {
-            this.currentPage = +el.target.dataset?.pageNo!
+          const pageNo = +el.target.dataset?.pageNo!
+          if (this.currentPage !== pageNo) {
+            this.currentPage = pageNo
+            this.#preloadImages()
           }
         }
       }
@@ -195,15 +204,24 @@ export class MangaReader extends LitElement {
   #scrollReset() {
     const num = this.currentPage;
     if (num > 2) {
-      this.#getPage(num - 2)!.scrollTop =  0
+      this.#getPage(num - 2)!.scrollTop = 0
     }
     if (num < this.pages.length - 1) {
-      this.#getPage(num + 2)!.scrollTop =  0
+      this.#getPage(num + 2)!.scrollTop = 0
     }
   }
 
-  #getPage(num: number | string){
+  #getPage(num: number | string) {
     return this.container.querySelector(`[data-page-no="${num}"]`)
+  }
+
+  #preloadImages() {
+    let num = 1
+    while (num <= this.preloadNo) {
+      const elm = (this.#getPage(this.currentPage + num)?.firstElementChild as HTMLImageElement)
+      if (!elm.complete) elm.loading = 'eager'
+      num++
+    }
   }
 
 
