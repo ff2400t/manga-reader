@@ -52,12 +52,13 @@ export class MangaReader extends LitElement {
 
   connectedCallback() {
     super.connectedCallback()
-    addEventListener('keydown', this.#keyHandler.bind(this))
+    this.tabIndex = 0;
+    this.addEventListener('keydown', this.#keyHandler.bind(this))
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    removeEventListener('keydown', this.#keyHandler.bind(this))
+    this.removeEventListener('keydown', this.#keyHandler.bind(this))
   }
 
   shouldUpdate(changedProperties: PropertyValues<this>) {
