@@ -7,6 +7,12 @@ type Mode = 'horizontal' | 'vertical' | 'double-page' | 'double-page-odd';
 type ReadingDirection = 'rtl' | 'ltr'
 type ScaleType = 'fitWidth' | 'fitHeight';
 
+enum Action {
+  Prev,
+  Next,
+  Middle
+}
+
 /**
  * Manga Reader component
  */
@@ -27,6 +33,11 @@ export class MangaReader extends LitElement {
 
   @property()
   scaleType: ScaleType = 'fitHeight'
+
+  /*
+  ** Function to Call if the Touch Action is Middle
+  */
+  handleMiddleClick!: () => void; 
 
   /**
    * No of images to preload after the current Image
@@ -161,10 +172,10 @@ export class MangaReader extends LitElement {
 
   #clickHandler(event: MouseEvent) {
     if (this.mode === 'horizontal' || this.#isDoublePageMode()) {
-      const middle = window.innerWidth / 2
-      let change = event.clientX < middle ? -1 : 1;
-      change *= this.dir === 'rtl' ? -1 : 1
-      this.gotoPage(this.currentPage + change)
+      const action = this.#getTouchAction(event)
+      if (action === Action.Prev) this.gotoPage(this.currentPage - 1)
+      else if (action === Action.Next) this.gotoPage(this.currentPage + 1)
+      else this?.handleMiddleClick()
     }
     else if ('vertical') {
       const middle = window.innerHeight * this.verticalScrollAmount
@@ -281,6 +292,23 @@ export class MangaReader extends LitElement {
     return this.mode.startsWith('double-page')
   }
 
+  /*
+  ** this caculates the action for the touch event,
+  ** the Screen is divided into 9 zones and with N, P and Nothing in the middle 
+  ** Prev Prev Prev
+  ** Prev      Next
+  ** Next Next Next
+  */
+  #getTouchAction(event: MouseEvent): Action {
+    const { clientX: x, clientY: y } = event
+    const { innerWidth: winWidth, innerHeight: winHeight } = window
+    if (y < winHeight / 3) return Action.Prev
+    else if (y > winHeight * (2 / 3)) return Action.Next
+    //middle section of the screen
+    else if (x < winWidth / 3) return Action.Prev
+    else if (x > winWidth * (2 / 3)) return Action.Next
+    else return Action.Middle
+  } 
 
   static styles = css`
 
@@ -289,7 +317,6 @@ export class MangaReader extends LitElement {
   }
 
   #container{
-    container: mr / inline-size; 
     display: grid;
   }
 
