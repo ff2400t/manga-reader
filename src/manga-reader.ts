@@ -37,7 +37,7 @@ export class MangaReader extends LitElement {
   /*
   ** Function to Call if the Touch Action is Middle
   */
-  handleMiddleClick!: () => void; 
+  handleMiddleClick!: () => void;
 
   /**
    * No of images to preload after the current Image
@@ -48,6 +48,9 @@ export class MangaReader extends LitElement {
 
   @query('#container', true)
   container!: HTMLDivElement;
+
+  @query('#touch-indicator', true)
+  touchIndicator!: HTMLDivElement;
 
   @state()
   doublePagedArr: Array<{ url: string, index: number }[]> = []
@@ -107,8 +110,13 @@ export class MangaReader extends LitElement {
     if (changedProperties.has("mode")) {
       // the nullish operator is here to prevent it from exploding on the first render
       this.observer?.disconnect()
-      if (this.mode === 'horizontal' || this.#isDoublePageMode()) this.setUpHorizontalIntersectionObserver()
+      // do show this on the initial load of the element
+      if (changedProperties.get("mode") !== undefined) this.showTouchIndicator()
+      if (this.mode === 'horizontal' || this.#isDoublePageMode()) {
+        this.setUpHorizontalIntersectionObserver()
+      }
       else if (this.mode === 'vertical') this.setUpVerticalIntersectionObserver()
+
     }
   }
 
@@ -155,6 +163,10 @@ export class MangaReader extends LitElement {
         : this.#listTemplate()
       }
         </div>
+      <div id="touch-indicator">
+        <p id="touch-indicator-prev">Previous</p>
+        <p id="touch-indicator-next">Next</p>
+      </div>
       `
   }
 
@@ -308,7 +320,20 @@ export class MangaReader extends LitElement {
     else if (x < winWidth / 3) return Action.Prev
     else if (x > winWidth * (2 / 3)) return Action.Next
     else return Action.Middle
-  } 
+  }
+
+  /*
+  ** This will shows the touch area grid and the action 
+  ** When clicked it will trigger an opacity animation. The duration of the animatin can be customized by passing that as the first argument
+  */
+  showTouchIndicator(duration: number = 500) {
+    this.touchIndicator.style.display = 'grid';
+    this.touchIndicator.addEventListener('click', () => {
+      this.touchIndicator.animate([{ opacity: 0 }], { duration }).onfinish = () => {
+        this.touchIndicator.style.display = 'none'
+      }
+    }, { once: true })
+  }
 
   static styles = css`
 
@@ -385,6 +410,48 @@ export class MangaReader extends LitElement {
     width: 100%; 
     height: auto;
   }    
+
+  #touch-indicator{
+    --indicator-prev-color: orangered;
+    --indicator-next-color: green;
+    color: white;
+    position: absolute;
+    inset: 0;
+    display: none;
+    /* well the display is grid, but we let the javascript add that and remove that as it is needed*/
+    opacity: 0.75;
+    grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; 
+  }
+
+  #touch-indicator-prev, #touch-indicator-next{ 
+    display: grid;
+    place-content: center;
+    font-size: 3rem;
+    margin: 0px; 
+    grid-column: span 3;
+  }
+
+  #touch-indicator-prev{
+    background: var(--indicator-prev-color);
+  }
+
+  #touch-indicator-next{
+    grid-row: 3;
+    background: var(--indicator-next-color);
+  }
+
+  #touch-indicator::before{
+    content: "";
+    background: var(--indicator-prev-color);
+    grid-row: 2;
+  }
+
+  #touch-indicator::after{
+    content: "";
+    background: var(--indicator-next-color);
+    grid-column: 3
+  }
+  
   `
 }
 
