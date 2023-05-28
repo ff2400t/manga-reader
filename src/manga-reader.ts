@@ -111,6 +111,7 @@ export class MangaReader extends LitElement {
   firstUpdated() {
     const currentPage = this.getAttribute('current-page');
     if (currentPage) this.gotoPage(+currentPage)
+    this.#preloadCallBack()
   }
 
   updated(changedProperties: PropertyValueMap<any>) {
