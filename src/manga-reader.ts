@@ -190,9 +190,9 @@ export class MangaReader extends LitElement {
 
   #clickHandler(event: MouseEvent) {
     const action = this.#getTouchAction(event)
-    if ('webtoon') {
+    if (this.mode === 'webtoon') {
       if (action === Action.Middle) {
-        if(typeof this.handleMiddleClick === "function") this.handleMiddleClick()
+        if (typeof this.handleMiddleClick === "function") this.handleMiddleClick()
       }
       else {
         const multiplier = action === Action.Next ? 1 : -1
@@ -206,14 +206,14 @@ export class MangaReader extends LitElement {
       if (action === Action.Prev) this.gotoPage(this.currentPage - 1)
       else if (action === Action.Next) this.gotoPage(this.currentPage + 1)
       else {
-        if(typeof this.handleMiddleClick === "function") this.handleMiddleClick() 
+        if (typeof this.handleMiddleClick === "function") this.handleMiddleClick()
       }
     }
   }
 
   #keyHandler(event: KeyboardEvent) {
     const key = event.key
-    if ('webtoon') {
+    if (this.mode === 'webtoon') {
       const scrollAmount = this.container.offsetHeight * this.webtoonScrollAmount
       if (key === "ArrowUp") {
         this.container.scrollBy({
@@ -297,7 +297,7 @@ export class MangaReader extends LitElement {
   #preloadImages() {
     const image = this.#getPage(this.currentPage)?.firstElementChild as HTMLImageElement
     // this is so that if current page is loaded we move on to loading the others right away
-    if(!image) return
+    if (!image) return
     if (image.complete) this.#preloadCallBack()
     // this is so that the current page loads before loading others
     image.addEventListener('load', () => this.#preloadCallBack())
@@ -329,21 +329,21 @@ export class MangaReader extends LitElement {
 
     const x = cX - rect.left;
     const y = cY - rect.top;
-    const winHeight = rect.height;
-    const winWidth = rect.width;
+    const containeHeight = rect.height;
+    const containerWidth = rect.width;
 
-    let result; 
+    let result;
 
-    if (y < winHeight / 3) result = Action.Prev
-    else if (y > winHeight * (2 / 3)) result = Action.Next
+    if (y < containeHeight / 3) result = Action.Prev
+    else if (y > containeHeight * (2 / 3)) result = Action.Next
     //middle section of the screen
-    else if (x < winWidth / 3) result = Action.Prev
-    else if (x > winWidth * (2 / 3)) result = Action.Next
-    else result = Action.Middle 
+    else if (x < containerWidth / 3) result = Action.Prev
+    else if (x > containerWidth * (2 / 3)) result = Action.Next
+    else result = Action.Middle
 
-    if(this.dir = 'rtl') {
-      if(result === Action.Next) result = Action.Prev
-      if(result === Action.Prev) result = Action.Next
+    if (this.dir === 'rtl') {
+      if (result === Action.Next) result = Action.Prev
+      if (result === Action.Prev) result = Action.Next
     }
 
     return result
