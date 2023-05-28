@@ -3,6 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "dist/manga-reader.js",
+  "exports": {
+    ".": "./dist/manga-reader.js"
+  },
+  "types": "types/manga-reader.d.ts",
+  "files": [
+    "dist",
+    "types"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
