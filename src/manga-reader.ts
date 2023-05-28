@@ -3,7 +3,7 @@ import { customElement, property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
 // import { Ref, createRef, ref } from 'lit/directives/ref.js';
 
-type Mode = 'horizontal' | 'vertical' | 'double-page' | 'double-page-odd';
+type Mode = 'horizontal' | 'vertical' | 'double-page' | 'double-page-odd' | 'webtoon';
 type ReadingDirection = 'rtl' | 'ltr'
 type ScaleType = 'fitWidth' | 'fitHeight';
 
@@ -56,11 +56,11 @@ export class MangaReader extends LitElement {
   doublePagedArr: Array<{ url: string, index: number }[]> = []
 
   /**
-   * Amount to scroll during a click event in vertical Mode
+   * Amount to scroll during a click event in webtoon Mode
    * Number between 0 and 1
    */
   @property()
-  verticalScrollAmount = 0.75
+  webtoonScrollAmount = 0.75
 
   observer!: IntersectionObserver;
 
@@ -108,15 +108,17 @@ export class MangaReader extends LitElement {
 
   updated(changedProperties: PropertyValueMap<any>) {
     if (changedProperties.has("mode")) {
+
       // the nullish operator is here to prevent it from exploding on the first render
       this.observer?.disconnect()
+
       // do show this on the initial load of the element
       if (changedProperties.get("mode") !== undefined) this.showTouchIndicator()
-      if (this.mode === 'horizontal' || this.#isDoublePageMode()) {
-        this.setUpHorizontalIntersectionObserver()
-      }
-      else if (this.mode === 'vertical') this.setUpVerticalIntersectionObserver()
 
+      if (this.mode === 'webtoon') this.setUpWebtoonIntersectionObserver()
+      else {
+        this.setUpHorizontalIntersectionObserver()
+      } 
     }
   }
 
@@ -124,7 +126,7 @@ export class MangaReader extends LitElement {
     return this.pages.map((url, index) => html`
       <div class='page' data-page-no=${index + 1}>
         <img id="page-${index}" loading='lazy' src=${url} />
-        ${this.mode === 'vertical'
+        ${this.mode === 'webtoon'
         ? html`<div data-v-page-no=${index + 1}></div>`
         : nothing
       }
@@ -136,10 +138,6 @@ export class MangaReader extends LitElement {
       <div class='page' data-page-no=${index + 1}>
       ${arr.map(({ url, index }) =>
       html`<img id="page-${index}" loading='lazy' src=${url} />`)} 
-        ${this.mode === 'vertical'
-        ? html`<div data-v-page-no=${index + 1}></div>`
-        : nothing
-      }
       </div>`)
   }
 
@@ -148,6 +146,7 @@ export class MangaReader extends LitElement {
     const classes = {
       horizontal: this.mode === 'horizontal' || isDoublePageMode,
       vertical: this.mode === 'vertical',
+      webtoon: this.mode === 'webtoon',
       'double-page': isDoublePageMode
     }
     return html`
@@ -183,35 +182,28 @@ export class MangaReader extends LitElement {
   }
 
   #clickHandler(event: MouseEvent) {
-    if (this.mode === 'horizontal' || this.#isDoublePageMode()) {
-      const action = this.#getTouchAction(event)
+    const action = this.#getTouchAction(event)
+    if ('webtoon') {
+      if (action === Action.Middle) this?.handleMiddleClick()
+      else {
+        const multiplier = action === Action.Next ? 1 : -1
+        const scrollAmount = window.innerHeight * this.webtoonScrollAmount * multiplier
+        this.container.scrollBy({
+          top: scrollAmount,
+          behavior: 'smooth'
+        })
+      }
+    } else {
       if (action === Action.Prev) this.gotoPage(this.currentPage - 1)
       else if (action === Action.Next) this.gotoPage(this.currentPage + 1)
       else this?.handleMiddleClick()
-    }
-    else if ('vertical') {
-      const middle = window.innerHeight * this.verticalScrollAmount
-      const scrollAmount = middle * (event.clientY < middle ? -1 : 1)
-      this.container.scrollBy({
-        top: scrollAmount,
-        behavior: 'smooth'
-      })
     }
   }
 
   #keyHandler(event: KeyboardEvent) {
     const key = event.key
-    if (this.mode === 'horizontal' || this.#isDoublePageMode()) {
-      let change;
-      if (key === "ArrowLeft") change = -1
-      else if (key === "ArrowRight") change = 1
-      if (change !== undefined) {
-        change *= this.dir === 'rtl' ? -1 : 1
-        this.gotoPage(this.currentPage + change)
-      }
-    }
-    else if ('vertical') {
-      const scrollAmount = window.innerHeight * this.verticalScrollAmount
+    if ('webtoon') {
+      const scrollAmount = window.innerHeight * this.webtoonScrollAmount
       if (key === "ArrowUp") {
         this.container.scrollBy({
           top: -1 * scrollAmount,
@@ -223,6 +215,14 @@ export class MangaReader extends LitElement {
           top: scrollAmount,
           behavior: 'smooth'
         })
+      }
+    } else {
+      let change;
+      if (key === "ArrowLeft") change = -1
+      else if (key === "ArrowRight") change = 1
+      if (change !== undefined) {
+        change *= this.dir === 'rtl' ? -1 : 1
+        this.gotoPage(this.currentPage + change)
       }
     }
   }
@@ -246,7 +246,7 @@ export class MangaReader extends LitElement {
     this.container.querySelectorAll('div[data-page-no]').forEach(el => this.observer.observe(el))
   }
 
-  setUpVerticalIntersectionObserver() {
+  setUpWebtoonIntersectionObserver() {
     this.observer = new IntersectionObserver((entries) => {
       for (const el of entries) {
         if (el.isIntersecting && el.target instanceof HTMLElement) {
@@ -381,21 +381,21 @@ export class MangaReader extends LitElement {
     margin-right: auto;
   }
   
-  #container.vertical {
+  #container.webtoon {
     width: 100vw;
     height: 100vh;
     justify-items: center;
     overflow-y: scroll;
   }
 
-  .vertical .page {
+  .webtoon .page {
     width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center; 
   }
 
-  .vertical .page img {
+  .webtoon .page img {
     display: block;
     width: 100%;
     height: 100%;
@@ -411,6 +411,7 @@ export class MangaReader extends LitElement {
     height: auto;
   }    
 
+  /* Touch Idicator styles*/
   #touch-indicator{
     --indicator-prev-color: orangered;
     --indicator-next-color: green;
