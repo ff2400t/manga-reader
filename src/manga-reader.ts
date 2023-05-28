@@ -34,6 +34,8 @@ export class MangaReader extends LitElement {
   @property()
   scaleType: ScaleType = 'fitHeight'
 
+  showTouchIndicatorOnModeChange = false
+
   /*
   ** Function to Call if the Touch Action is Middle
   */
@@ -118,7 +120,8 @@ export class MangaReader extends LitElement {
       this.observer?.disconnect()
 
       // do show this on the initial load of the element
-      if (changedProperties.get("mode") !== undefined) this.showTouchIndicator()
+      if (changedProperties.get("mode") !== undefined
+        && this.showTouchIndicatorOnModeChange) this.showTouchIndicator()
 
       if (this.mode === 'webtoon') this.setUpWebtoonIntersectionObserver()
       else {
