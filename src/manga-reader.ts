@@ -142,12 +142,9 @@ export class MangaReader extends LitElement {
   }
 
   render() {
-    const isDoublePageMode = this.#isDoublePageMode()
     const classes = {
-      horizontal: this.mode === 'horizontal' || isDoublePageMode,
       vertical: this.mode === 'vertical',
       webtoon: this.mode === 'webtoon',
-      'double-page': isDoublePageMode
     }
     return html`
         <div 
@@ -157,7 +154,7 @@ export class MangaReader extends LitElement {
           dir=${this.dir}
           data-scale-type=${this.scaleType}
           >
-          ${isDoublePageMode
+          ${this.#isDoublePageMode()
         ? this.#doublePageTemplate()
         : this.#listTemplate()
       }
@@ -345,14 +342,21 @@ export class MangaReader extends LitElement {
     display: grid;
   }
 
-  #container.horizontal {
+  #container:not(.webtoon) {
     overflow-x: scroll;
     scroll-snap-type: x mandatory;
     grid-auto-flow: column;
     grid-auto-columns: 100vw;
   }
 
-  .horizontal .page {
+  #container.vertical{
+    scroll-snap-type: y mandatory;
+    grid-auto-flow: row;
+    grid-auto-rows: 100vh; 
+    height: 100vh;
+  }
+
+  #container:not(.webtoon) .page {
     scroll-snap-align: center;
     width: 100vw;
     height: 100vh;
@@ -366,21 +370,31 @@ export class MangaReader extends LitElement {
   */
   }
   
-  .horizontal .page img {
+  #container:not(.webtoon) .page img {
     display: block;
     width: auto;
     height: 100%;
     margin-block:auto;
   }
 
-  .horizontal .page img:first-child{
+  #container .page img:first-child{
     margin-left: auto;
   }
 
- .horizontal .page img:last-child {
+ #container .page img:last-child {
     margin-right: auto;
   }
   
+  /*
+  fitHeight is the Default mode for Horizontal Reader so we just
+  don't add any additional css to make that work
+  */ 
+
+  #container:not(.webtoon)[data-scale-type="fitWidth"] .page  img{
+    width: 100%; 
+    height: auto;
+  }    
+
   #container.webtoon {
     width: 100vw;
     height: 100vh;
@@ -396,20 +410,9 @@ export class MangaReader extends LitElement {
   }
 
   .webtoon .page img {
-    display: block;
     width: 100%;
     height: 100%;
   }
-
-  /*
-  fitHeight is the Default mode for Horizontal Reader so we just
-  don't add any additional css to make that work
-  */ 
-
-  .horizontal[data-scale-type="fitWidth"] .page  img{
-    width: 100%; 
-    height: auto;
-  }    
 
   /* Touch Idicator styles*/
   #touch-indicator{
