@@ -196,7 +196,7 @@ export class MangaReader extends LitElement {
       }
       else {
         const multiplier = action === Action.Next ? 1 : -1
-        const scrollAmount = window.innerHeight * this.webtoonScrollAmount * multiplier
+        const scrollAmount = this.container.offsetHeight * this.webtoonScrollAmount * multiplier
         this.container.scrollBy({
           top: scrollAmount,
           behavior: 'smooth'
@@ -214,7 +214,7 @@ export class MangaReader extends LitElement {
   #keyHandler(event: KeyboardEvent) {
     const key = event.key
     if ('webtoon') {
-      const scrollAmount = window.innerHeight * this.webtoonScrollAmount
+      const scrollAmount = this.container.offsetHeight * this.webtoonScrollAmount
       if (key === "ArrowUp") {
         this.container.scrollBy({
           top: -1 * scrollAmount,
