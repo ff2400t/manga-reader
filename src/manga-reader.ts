@@ -374,12 +374,14 @@ export class MangaReader extends LitElement {
     --mr-height: 100vh;
     --indicator-prev-color: orangered;
     --indicator-next-color: green;
+    --mr-bg: black;
   }
 
   #container{
     display: grid;
     height: var(--mr-height);
-    width: var(--mr-width)
+    width: var(--mr-width);
+    background: var(--mr-bg)
   }
 
   #container:not(.webtoon) {
