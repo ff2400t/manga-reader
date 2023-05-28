@@ -99,11 +99,16 @@ export class MangaReader extends LitElement {
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    if (name === 'currentpage') {
+    if (name === 'current-page') {
       if (this.gotoPage(+newValue)) this.currentPage = +newValue
       return;
     }
     super.attributeChangedCallback(name, oldValue, newValue)
+  }
+
+  firstUpdated() {
+    const currentPage = this.getAttribute('current-page');
+    if (currentPage) this.gotoPage(+currentPage)
   }
 
   updated(changedProperties: PropertyValueMap<any>) {
@@ -118,7 +123,7 @@ export class MangaReader extends LitElement {
       if (this.mode === 'webtoon') this.setUpWebtoonIntersectionObserver()
       else {
         this.setUpHorizontalIntersectionObserver()
-      } 
+      }
     }
   }
 
