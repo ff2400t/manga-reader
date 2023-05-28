@@ -293,6 +293,7 @@ export class MangaReader extends LitElement {
   #preloadImages() {
     const image = this.#getPage(this.currentPage)?.firstElementChild as HTMLImageElement
     // this is so that if current page is loaded we move on to loading the others right away
+    if(!image) return
     if (image.complete) this.#preloadCallBack()
     // this is so that the current page loads before loading others
     image.addEventListener('load', () => this.#preloadCallBack())
