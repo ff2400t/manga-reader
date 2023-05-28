@@ -305,8 +305,11 @@ export class MangaReader extends LitElement {
 
   #preloadCallBack() {
     let num = 1
-    while (num <= this.preloadNo) {
-      const image = (this.container.querySelector('#page-' + (this.currentPage + num)) as HTMLImageElement)
+    while (num <= this.preloadNo) { 
+      let nextPage: number;
+      if(this.dir === "ltr") nextPage = this.currentPage + num
+      else nextPage = this.currentPage - num
+      const image = (this.container.querySelector('#page-' + nextPage) as HTMLImageElement)
       if (image && !image.complete) image.loading = 'eager'
       num++
     }
