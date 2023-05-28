@@ -320,14 +320,29 @@ export class MangaReader extends LitElement {
   ** Next Next Next
   */
   #getTouchAction(event: MouseEvent): Action {
-    const { clientX: x, clientY: y } = event
-    const { innerWidth: winWidth, innerHeight: winHeight } = window
-    if (y < winHeight / 3) return Action.Prev
-    else if (y > winHeight * (2 / 3)) return Action.Next
+    const { clientX: cX, clientY: cY } = event
+    const rect = this.container.getBoundingClientRect()
+
+    const x = cX - rect.left;
+    const y = cY - rect.top;
+    const winHeight = rect.height;
+    const winWidth = rect.width;
+
+    let result; 
+
+    if (y < winHeight / 3) result = Action.Prev
+    else if (y > winHeight * (2 / 3)) result = Action.Next
     //middle section of the screen
-    else if (x < winWidth / 3) return Action.Prev
-    else if (x > winWidth * (2 / 3)) return Action.Next
-    else return Action.Middle
+    else if (x < winWidth / 3) result = Action.Prev
+    else if (x > winWidth * (2 / 3)) result = Action.Next
+    else result = Action.Middle 
+
+    if(this.dir = 'rtl') {
+      if(result === Action.Next) result = Action.Prev
+      if(result === Action.Prev) result = Action.Next
+    }
+
+    return result
   }
 
   /*
