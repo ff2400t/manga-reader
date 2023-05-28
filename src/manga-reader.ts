@@ -191,7 +191,9 @@ export class MangaReader extends LitElement {
   #clickHandler(event: MouseEvent) {
     const action = this.#getTouchAction(event)
     if ('webtoon') {
-      if (action === Action.Middle) this?.handleMiddleClick()
+      if (action === Action.Middle) {
+        if(typeof this.handleMiddleClick === "function") this.handleMiddleClick()
+      }
       else {
         const multiplier = action === Action.Next ? 1 : -1
         const scrollAmount = window.innerHeight * this.webtoonScrollAmount * multiplier
@@ -203,7 +205,9 @@ export class MangaReader extends LitElement {
     } else {
       if (action === Action.Prev) this.gotoPage(this.currentPage - 1)
       else if (action === Action.Next) this.gotoPage(this.currentPage + 1)
-      else this?.handleMiddleClick()
+      else {
+        if(typeof this.handleMiddleClick === "function") this.handleMiddleClick() 
+      }
     }
   }
 
