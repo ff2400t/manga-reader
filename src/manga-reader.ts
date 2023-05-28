@@ -152,6 +152,7 @@ export class MangaReader extends LitElement {
       webtoon: this.mode === 'webtoon',
     }
     return html`
+      <div style='position: relative'>
         <div 
           @click=${this.#clickHandler}
           id='container'
@@ -164,9 +165,10 @@ export class MangaReader extends LitElement {
         : this.#listTemplate()
       }
         </div>
-      <div id="touch-indicator">
-        <p id="touch-indicator-prev">Previous</p>
-        <p id="touch-indicator-next">Next</p>
+        <div id="touch-indicator">
+          <p id="touch-indicator-prev">Previous</p>
+          <p id="touch-indicator-next">Next</p>
+        </div>
       </div>
       `
   }
@@ -341,30 +343,35 @@ export class MangaReader extends LitElement {
 
   :host{
     overflow: hidden;
+    --mr-width: 100vw;
+    --mr-height: 100vh;
+    --indicator-prev-color: orangered;
+    --indicator-next-color: green;
   }
 
   #container{
     display: grid;
+    height: var(--mr-height);
+    width: var(--mr-width)
   }
 
   #container:not(.webtoon) {
     overflow-x: scroll;
     scroll-snap-type: x mandatory;
     grid-auto-flow: column;
-    grid-auto-columns: 100vw;
+    grid-auto-columns: var(--mr-width);
   }
 
   #container.vertical{
     scroll-snap-type: y mandatory;
     grid-auto-flow: row;
-    grid-auto-rows: 100vh; 
-    height: 100vh;
+    grid-auto-rows: var(--mr-height); 
   }
 
   #container:not(.webtoon) .page {
     scroll-snap-align: center;
-    width: 100vw;
-    height: 100vh;
+    width: var(--mr-width);
+    height: var(--mr-height);
     overflow-y: scroll;
     display: flex;  
   /*
@@ -401,8 +408,8 @@ export class MangaReader extends LitElement {
   }    
 
   #container.webtoon {
-    width: 100vw;
-    height: 100vh;
+    width: var(--mr-width);
+    height: var(--mr-height);
     justify-items: center;
     overflow-y: scroll;
   }
@@ -421,8 +428,6 @@ export class MangaReader extends LitElement {
 
   /* Touch Idicator styles*/
   #touch-indicator{
-    --indicator-prev-color: orangered;
-    --indicator-next-color: green;
     color: white;
     position: absolute;
     inset: 0;
@@ -430,6 +435,8 @@ export class MangaReader extends LitElement {
     /* well the display is grid, but we let the javascript add that and remove that as it is needed*/
     opacity: 0.75;
     grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; 
+    height: var(--mr-height);
+    width: var(--mr-width)
   }
 
   #touch-indicator-prev, #touch-indicator-next{ 
