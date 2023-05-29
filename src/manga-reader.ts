@@ -186,7 +186,16 @@ export class MangaReader extends LitElement {
     const page = this.#getPage(num)
     page?.scrollIntoView()
     this.currentPage = num
+    this.#dispatchPageChangeEvent(num)
     return true
+  }
+
+  #dispatchPageChangeEvent(pageNo: number) {
+    const e = new CustomEvent('pagechange', {
+      detail: { pageNo },
+      composed: true
+    })
+    this.dispatchEvent(e)
   }
 
   #clickHandler(event: MouseEvent) {
@@ -246,6 +255,7 @@ export class MangaReader extends LitElement {
           const pageNo = +el.target.dataset?.pageNo!
           if (this.currentPage !== pageNo) {
             this.currentPage = pageNo
+            this.#dispatchPageChangeEvent(pageNo)
             this.#scrollReset()
             this.#preloadImages()
           }
@@ -265,6 +275,7 @@ export class MangaReader extends LitElement {
           const pageNo = +el.target.dataset?.pageNo!
           if (this.currentPage !== pageNo) {
             this.currentPage = pageNo
+            this.#dispatchPageChangeEvent(pageNo)
             this.#preloadImages()
           }
         }
