@@ -169,7 +169,7 @@ export class MangaReader extends LitElement {
         : this.#listTemplate()
       }
         </div>
-        <div id="touch-indicator">
+        <div @click=${this.touchIndicatorHandler} id="touch-indicator">
           <p id="touch-indicator-prev">Previous</p>
           <p id="touch-indicator-next">Next</p>
         </div>
@@ -357,13 +357,18 @@ export class MangaReader extends LitElement {
   ** This will shows the touch area grid and the action 
   ** When clicked it will trigger an opacity animation. The duration of the animatin can be customized by passing that as the first argument
   */
-  showTouchIndicator(duration: number = 500) {
+  showTouchIndicator() {
     this.touchIndicator.style.display = 'grid';
-    this.touchIndicator.addEventListener('click', () => {
-      this.touchIndicator.animate([{ opacity: 0 }], { duration }).onfinish = () => {
-        this.touchIndicator.style.display = 'none'
-      }
-    }, { once: true })
+  }
+
+  hideTouchIndicator() {
+    this.touchIndicator.style.display = 'none'
+  }
+
+  touchIndicatorHandler() {
+    this.touchIndicator.animate([{ opacity: 0 }], { duration: 500 }).onfinish = () => {
+      this.touchIndicator.style.display = 'none'
+    }
   }
 
   static styles = css`
