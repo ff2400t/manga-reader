@@ -435,13 +435,13 @@ export class MangaReader extends LitElement {
   }
 
   #container .page img:first-child{
-    margin-left: auto;
+    margin-inline-start: auto;
   }
 
- #container .page img:last-child {
-    margin-right: auto;
+  #container .page img:last-child {
+    margin-inline-end: auto;
   }
-  
+
   /*
   fitHeight is the Default mode for Horizontal Reader so we just
   don't add any additional css to make that work
