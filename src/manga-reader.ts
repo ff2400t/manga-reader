@@ -54,8 +54,7 @@ export class MangaReader extends LitElement {
   @query('#touch-indicator', true)
   touchIndicator!: HTMLDivElement;
 
-  @state()
-  doublePagedArr: Array<{ url: string, index: number }[]> = []
+  #doublePagedArr: Array<{ url: string, index: number }[]> = []
 
   /**
    * Amount to scroll during a click event in webtoon Mode
@@ -86,17 +85,15 @@ export class MangaReader extends LitElement {
     // when we have just changed to doublePagedMode
     // this is to cache and prevent unnecessary renders
     if (changedProperties.has('mode') && this.#isDoublePageMode()) {
-      if (this.doublePagedArr.length === 0) {
-        const arr = []
-        const isOdd = this.mode.endsWith('odd');
-        if (isOdd) arr.push([{ url: this.pages[0], index: 1 }])
-        for (let i = isOdd ? 1 : 0; i < this.pages.length; i += 2) {
-          const temp = [{ url: this.pages[i], index: i + 1 }];
-          if (this.pages.length > i + 1) temp.push({ url: this.pages[i + 1], index: i + 2 })
-          arr.push(temp)
-        }
-        this.doublePagedArr = arr
+      const arr = []
+      const isOdd = this.mode.endsWith('odd');
+      if (isOdd) arr.push([{ url: this.pages[0], index: 1 }])
+      for (let i = isOdd ? 1 : 0; i < this.pages.length; i += 2) {
+        const temp = [{ url: this.pages[i], index: i + 1 }];
+        if (this.pages.length > i + 1) temp.push({ url: this.pages[i + 1], index: i + 2 })
+        arr.push(temp)
       }
+      this.#doublePagedArr = arr
     }
   }
 
@@ -143,7 +140,7 @@ export class MangaReader extends LitElement {
   }
 
   #doublePageTemplate() {
-    return this.doublePagedArr.map((arr, index) => html`
+    return this.#doublePagedArr.map((arr, index) => html`
       <div class='page' data-page-no=${index + 1}>
       ${arr.map(({ url, index }) =>
       html`<img id="page-${index}" loading='lazy' src=${url} />`)} 
@@ -296,7 +293,7 @@ export class MangaReader extends LitElement {
     if (num > 2) {
       this.#getPage(num - 2)!.scrollTop = 0
     }
-    const arr = this.#isDoublePageMode() ? this.doublePagedArr : this.pages
+    const arr = this.#isDoublePageMode() ? this.#doublePagedArr : this.pages
     if (num < arr.length - 1) {
       this.#getPage(num + 2)!.scrollTop = 0
     }
