@@ -5,7 +5,7 @@ import { classMap } from 'lit/directives/class-map.js';
 
 type Mode = 'horizontal' | 'vertical' | 'double-page' | 'double-page-odd' | 'webtoon';
 type ReadingDirection = 'rtl' | 'ltr'
-type ScaleType = 'fitWidth' | 'fitHeight';
+type ScaleType = 'fit-width' | 'fit-height';
 
 enum Action {
   Prev,
@@ -32,7 +32,7 @@ export class MangaReader extends LitElement {
   currentPage: number = 1;
 
   @property()
-  scaleType: ScaleType = 'fitHeight'
+  scaleType: ScaleType = 'fit-height'
 
   showTouchIndicatorOnModeChange = false
 
@@ -440,11 +440,11 @@ export class MangaReader extends LitElement {
   }
 
   /*
-  fitHeight is the Default mode for Horizontal Reader so we just
+  fit-height is the Default mode for Horizontal Reader so we just
   don't add any additional css to make that work
   */ 
 
-  #container:not(.webtoon)[data-scale-type="fitWidth"] .page  img{
+  #container:not(.webtoon)[data-scale-type="fit-width"] .page  img{
     width: 100%; 
     height: auto;
   }    
