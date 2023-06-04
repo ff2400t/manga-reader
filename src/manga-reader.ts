@@ -108,7 +108,7 @@ export class MangaReader extends LitElement {
   firstUpdated() {
     const currentPage = this.getAttribute('current-page');
     if (currentPage) this.gotoPage(+currentPage)
-    this.#preloadCallBack()
+    this.#preloadImages()
   }
 
   updated(changedProperties: PropertyValueMap<any>) {
@@ -131,7 +131,7 @@ export class MangaReader extends LitElement {
   #listTemplate() {
     return this.pages.map((url, index) => html`
       <div class='page' data-page-no=${index + 1}>
-        <img id="page-${index}" loading='lazy' src=${url} />
+        <img id="page-${index + 1}" loading='lazy' src=${url} />
         ${this.mode === 'webtoon'
         ? html`<div data-v-page-no=${index + 1}></div>`
         : nothing
@@ -143,7 +143,7 @@ export class MangaReader extends LitElement {
     return this.#doublePagedArr.map((arr, index) => html`
       <div class='page' data-page-no=${index + 1}>
       ${arr.map(({ url, index }) =>
-      html`<img id="page-${index}" loading='lazy' src=${url} />`)} 
+      html`<img id="page-${index + 1}" loading='lazy' src=${url} />`)} 
       </div>`)
   }
 
@@ -314,9 +314,9 @@ export class MangaReader extends LitElement {
 
   #preloadCallBack() {
     let num = 1
-    while (num <= this.preloadNo) { 
+    while (num <= this.preloadNo) {
       let nextPage: number;
-      if(this.dir === "ltr") nextPage = this.currentPage + num
+      if (this.dir === "ltr") nextPage = this.currentPage + num
       else nextPage = this.currentPage - num
       const image = (this.container.querySelector('#page-' + nextPage) as HTMLImageElement)
       if (image && !image.complete) image.loading = 'eager'
