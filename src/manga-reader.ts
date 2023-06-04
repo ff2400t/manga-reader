@@ -509,7 +509,11 @@ export class MangaReader extends LitElement {
     background: var(--indicator-next-color);
     grid-column: 3
   }
-  
+
+  ::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+  } 
   `
 }
 
