@@ -1,11 +1,11 @@
 import { LitElement, PropertyValueMap, PropertyValues, css, html, nothing } from 'lit'
-import { customElement, property, query, state } from 'lit/decorators.js'
+import { customElement, eventOptions, property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
 // import { Ref, createRef, ref } from 'lit/directives/ref.js';
 
 type Mode = 'horizontal' | 'vertical' | 'double-page' | 'double-page-odd' | 'webtoon';
 type ReadingDirection = 'rtl' | 'ltr'
-type ScaleType = 'fit-width' | 'fit-height';
+type ScaleType = 'fit-width' | 'fit-height' | 'stretch' | 'original-size';
 
 enum Action {
   Prev,
@@ -155,6 +155,7 @@ export class MangaReader extends LitElement {
     return html`
       <div style='position: relative'>
         <div 
+          @load=${this.loadHandler}
           @click=${this.#clickHandler}
           id='container'
           class='${classMap(classes)}'
@@ -243,6 +244,13 @@ export class MangaReader extends LitElement {
         this.gotoPage(this.currentPage + change)
       }
     }
+  }
+
+  @eventOptions({ capture: true, passive: true })
+  loadHandler(e: Event) {
+    const img = e.target as HTMLImageElement
+    img.style.setProperty('--natural-width', img.naturalWidth + "px")
+    img.style.setProperty('--natural-height', img.naturalHeight + "px")
   }
 
   setUpHorizontalIntersectionObserver() {
@@ -447,6 +455,15 @@ export class MangaReader extends LitElement {
   #container:not(.webtoon)[data-scale-type="fit-width"] .page  img{
     width: 100%; 
     height: auto;
+  }    
+
+  #container:not(.webtoon)[data-scale-type="stretch"] .page  img{
+    width: 100%; 
+  }    
+
+  #container:not(.webtoon)[data-scale-type="original-size"] .page  img{
+    width: var(--natrual-width); 
+    height: var(--natrual-height); 
   }    
 
   #container.webtoon {
