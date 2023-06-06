@@ -393,9 +393,9 @@ export class MangaReader extends LitElement {
     overflow: hidden;
     --mr-width: 100vw;
     --mr-height: 100vh;
-    --indicator-prev-color: orangered;
-    --indicator-next-color: green;
-    --mr-bg: black;
+    --mr-indicator-prev-color: orangered;
+    --mr-indicator-next-color: green;
+    --mr-bg: black;  
   }
 
   #container{
@@ -507,23 +507,23 @@ export class MangaReader extends LitElement {
   }
 
   #touch-indicator-prev{
-    background: var(--indicator-prev-color);
+    background: var(--mr-indicator-prev-color);
   }
 
   #touch-indicator-next{
     grid-row: 3;
-    background: var(--indicator-next-color);
+    background: var(--mr-indicator-next-color);
   }
 
   #touch-indicator::before{
     content: "";
-    background: var(--indicator-prev-color);
+    background: var(--mr-indicator-prev-color);
     grid-row: 2;
   }
 
   #touch-indicator::after{
     content: "";
-    background: var(--indicator-next-color);
+    background: var(--mr-indicator-next-color);
     grid-column: 3
   }
 
