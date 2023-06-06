@@ -10,13 +10,13 @@ import './mr-spinner.ts';
 // start: we show the spinner, but we before the fetching starts
 // fetching: When the fetching has started and we can show the progress bar
 // done: show the actual image
-type ImageState = 'idle' | "start" | "fetching" | "done" | 'failure'
+type ImageState = "idle" | "fetching" | "done" | 'failure'
 
 @customElement('mr-image')
 export default class MRImage extends LitElement {
 
   @property()
-  state: ImageState = 'start';
+  state: ImageState = 'idle';
 
   @property()
   src: string = ""
@@ -25,13 +25,7 @@ export default class MRImage extends LitElement {
   fetchingProgress = 20;
 
   @state()
-  objectURL!:string;
-
-  protected willUpdate(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
-    if (_changedProperties.get('state') === "idle" && this.state === 'start') {
-      this.load()
-    }
-  }
+  objectURL!:string; 
 
   // function which is debounced and which sets the  
   setFetchProgress(newValue: number) {
@@ -40,15 +34,14 @@ export default class MRImage extends LitElement {
   }
 
   async load() {
-    const setProgress = debounce(this.setFetchProgress.bind(this), 300)
-
-    if (this.state !== 'start') this.state = 'start'
+    const setProgress = debounce(this.setFetchProgress.bind(this), 300) 
     try {
       // Step 1: start the fetch and obtain a reader
       const response = (await fetch(this.src))!;
-      this.state = 'fetching'!;
 
       if (!response.ok) throw Error("Unable to fetch");
+
+      this.state = 'fetching'!;
       const reader = response.body!.getReader();
 
       // Step 2: get total length
@@ -60,9 +53,7 @@ export default class MRImage extends LitElement {
       while (true) {
         const { done, value } = await reader.read();
 
-        if (done) {
-          break;
-        }
+        if (done) break
 
         chunks.push(value);
         receivedLength += value.length;
@@ -85,20 +76,25 @@ export default class MRImage extends LitElement {
   render() {
     if (this.state === 'done') return html`<img part='img' src=${this.objectURL}/>`
     return html`<div class='image-container'>${choose(this.state, [
-      ['start', () => html`<mr-spinner></mr-spinner>`],
+      ['idle', () => html`<mr-spinner></mr-spinner>`],
       ['fetching', () => html`<mr-progress-ring value="${this.fetchingProgress}"><mr-progress-ring >`],
       ['failure', () => html`<button class='retry-btn' @click=${this.load}>Retry</button>`]
-    ], () => html`<div class='idle'></div>`)} 
+    ])} 
       </div>`
   }
 
   static styles = css`
+
+
   :host{ 
     --mr-loader-size: 64px;
-    --mr-track-width: 8px;
     --mr-loader-color: hotpink;
+    --mr-loader-track-width: 8px;
+    --mr-loader-track-color: var(--mr-bg);
+    --mr-loader-animation-duration: 2s;
     --indicator-transition-duration: 300ms;
-    --mr-retyry-but-bg: var(--mr-loader-color);
+
+    --mr-retry-btn-bg: var(--mr-loader-color);
     --mr-retry-btn-color: white;
   }
   
