@@ -1,7 +1,8 @@
 import { LitElement, PropertyValueMap, PropertyValues, css, html, nothing } from 'lit'
-import { customElement, eventOptions, property, query, state } from 'lit/decorators.js'
+import { customElement, eventOptions, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
-// import { Ref, createRef, ref } from 'lit/directives/ref.js';
+import './mr-image';
+import MRImage from './mr-image';
 
 type Mode = 'horizontal' | 'vertical' | 'double-page' | 'double-page-odd' | 'webtoon';
 type ReadingDirection = 'rtl' | 'ltr'
@@ -131,7 +132,7 @@ export class MangaReader extends LitElement {
   #listTemplate() {
     return this.pages.map((url, index) => html`
       <div class='page' data-page-no=${index + 1}>
-        <img id="page-${index + 1}" loading='lazy' src=${url} />
+        <mr-image id="page-${index + 1}" src=${url}></mr-image>
         ${this.mode === 'webtoon'
         ? html`<div data-v-page-no=${index + 1}></div>`
         : nothing
@@ -155,6 +156,7 @@ export class MangaReader extends LitElement {
     return html`
       <div style='position: relative'>
         <div 
+          part='container'
           @load=${this.loadHandler}
           @click=${this.#clickHandler}
           id='container'
@@ -307,17 +309,23 @@ export class MangaReader extends LitElement {
     }
   }
 
-  #getPage(num: number | string) {
+  #getPage(num: number | string): null | MRImage {
     return this.container.querySelector(`[data-page-no="${num}"]`)
   }
 
   #preloadImages() {
-    const image = this.#getPage(this.currentPage)?.firstElementChild as HTMLImageElement
+    const image = this.#getPage(this.currentPage)?.firstElementChild as MRImage;
     // this is so that if current page is loaded we move on to loading the others right away
     if (!image) return
-    if (image.complete) this.#preloadCallBack()
-    // this is so that the current page loads before loading others
-    image.addEventListener('load', () => this.#preloadCallBack())
+    if (image.state === 'done') this.#preloadCallBack()
+    // this is so that the current image loads before loading others
+    else if (image.state === 'idle') {
+      image.load()
+      image.addEventListener('mr-image-load', () => this.#preloadCallBack())
+    }
+    else image.addEventListener('mr-image-load', () => this.#preloadCallBack())
+
+
   }
 
   #preloadCallBack() {
@@ -326,8 +334,8 @@ export class MangaReader extends LitElement {
       let nextPage: number;
       if (this.dir === "ltr") nextPage = this.currentPage + num
       else nextPage = this.currentPage - num
-      const image = (this.container.querySelector('#page-' + nextPage) as HTMLImageElement)
-      if (image && !image.complete) image.loading = 'eager'
+      const image = (this.container.querySelector('#page-' + nextPage) as MRImage)
+      if (image && image.state !== 'done') image.load();
       num++
     }
   }

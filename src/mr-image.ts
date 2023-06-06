@@ -1,5 +1,5 @@
 import { customElement, property, state } from 'lit/decorators.js';
-import { LitElement, PropertyValueMap, css, html } from 'lit';
+import { LitElement, css, html } from 'lit';
 import { choose } from 'lit/directives/choose.js';
 import debounce from './debounce.js';
 import './mr-progress-ring.ts';
@@ -65,6 +65,9 @@ export default class MRImage extends LitElement {
       let blob = new Blob(chunks) 
       this.objectURL = URL.createObjectURL(blob)
       this.state = 'done'
+
+      const event = new CustomEvent('mr-image-load')
+      this.dispatchEvent(event)
 
       // Step 5: decode into a string
     } catch { 
