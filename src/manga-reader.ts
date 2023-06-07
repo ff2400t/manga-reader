@@ -272,7 +272,7 @@ export class MangaReader extends LitElement {
     this.observer = new IntersectionObserver((entries) => {
       for (const el of entries) {
         if (el.isIntersecting && el.target instanceof HTMLElement) {
-          const pageNo = +el.target.dataset?.pageNo!
+          const pageNo = +el.target.dataset?.vPageNo!
           if (this.currentPage !== pageNo) {
             this.currentPage = pageNo
             this.#dispatchPageChangeEvent(pageNo)
