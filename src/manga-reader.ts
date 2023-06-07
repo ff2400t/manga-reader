@@ -157,7 +157,6 @@ export class MangaReader extends LitElement {
       <div style='position: relative'>
         <div 
           part='container'
-          @load=${this.loadHandler}
           @click=${this.#clickHandler}
           id='container'
           class='${classMap(classes)}'
@@ -248,12 +247,6 @@ export class MangaReader extends LitElement {
     }
   }
 
-  @eventOptions({ capture: true, passive: true })
-  loadHandler(e: Event) {
-    const img = e.target as HTMLImageElement
-    img.style.setProperty('--natural-width', img.naturalWidth + "px")
-    img.style.setProperty('--natural-height', img.naturalHeight + "px")
-  }
 
   setUpHorizontalIntersectionObserver() {
     this.observer = new IntersectionObserver((entries) => {

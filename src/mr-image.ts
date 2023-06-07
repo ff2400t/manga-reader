@@ -1,4 +1,4 @@
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, eventOptions, property, state } from 'lit/decorators.js';
 import { LitElement, css, html } from 'lit';
 import { choose } from 'lit/directives/choose.js';
 import debounce from './debounce.js';
@@ -77,13 +77,20 @@ export default class MRImage extends LitElement {
   }
 
   render() {
-    if (this.state === 'done') return html`<img part='img' src=${this.objectURL}/>`
+    if (this.state === 'done') return html`<img @load=${this.loadHandler} part='img' src=${this.objectURL}/>`
     return html`<div class='image-container'>${choose(this.state, [
       ['idle', () => html`<mr-spinner></mr-spinner>`],
       ['fetching', () => html`<mr-progress-ring value="${this.fetchingProgress}"><mr-progress-ring >`],
       ['failure', () => html`<button class='retry-btn' @click=${this.load}>Retry</button>`]
     ])} 
       </div>`
+  } 
+  
+  @eventOptions({ passive: true })
+  loadHandler(e: Event) {
+    const img = e.target as HTMLImageElement
+    img.style.setProperty('--natural-width', img.naturalWidth + "px")
+    img.style.setProperty('--natural-height', img.naturalHeight + "px")
   }
 
   static styles = css`
