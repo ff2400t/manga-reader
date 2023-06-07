@@ -433,8 +433,18 @@ export class MangaReader extends LitElement {
    justify-content: center;
   */
   }
+  #container .page mr-image{ 
+    display: flex;
+    justify-content: center;
+  }
   
-  #container:not(.webtoon) .page img {
+
+  #container:not(.webtoon) .page mr-image{
+    width: 100%;
+    height: 100%;
+  } 
+  
+  #container:not(.webtoon) .page mr-image::part(img){
     display: block;
     width: auto;
     height: 100%;
@@ -454,16 +464,16 @@ export class MangaReader extends LitElement {
   don't add any additional css to make that work
   */ 
 
-  #container:not(.webtoon)[data-scale-type="fit-width"] .page  img{
+  #container:not(.webtoon)[data-scale-type="fit-width"] .page  mr-image::part(img){
     width: 100%; 
     height: auto;
   }    
 
-  #container:not(.webtoon)[data-scale-type="stretch"] .page  img{
+  #container:not(.webtoon)[data-scale-type="stretch"] .page  mr-image::part(img){
     width: 100%; 
   }    
 
-  #container:not(.webtoon)[data-scale-type="original-size"] .page  img{
+  #container:not(.webtoon)[data-scale-type="original-size"] .page  mr-image::part(img){
     width: var(--natrual-width); 
     height: var(--natrual-height); 
   }    
@@ -482,7 +492,7 @@ export class MangaReader extends LitElement {
     justify-content: center; 
   }
 
-  .webtoon .page img {
+  .webtoon .page mr-image::part(img){
     width: 100%;
     height: 100%;
   }
