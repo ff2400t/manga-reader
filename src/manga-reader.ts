@@ -186,6 +186,7 @@ export class MangaReader extends LitElement {
     page?.scrollIntoView()
     this.currentPage = num
     this.#dispatchPageChangeEvent(num)
+    this.#preloadImages()
     return true
   }
 
