@@ -88,10 +88,10 @@ export class MangaReader extends LitElement {
     if (changedProperties.has('mode') && this.#isDoublePageMode()) {
       const arr = []
       const isOdd = this.mode.endsWith('odd');
-      if (isOdd) arr.push([{ url: this.pages[0], index: 1 }])
+      if (isOdd) arr.push([{ url: this.pages[0], index: 0 }])
       for (let i = isOdd ? 1 : 0; i < this.pages.length; i += 2) {
-        const temp = [{ url: this.pages[i], index: i + 1 }];
-        if (this.pages.length > i + 1) temp.push({ url: this.pages[i + 1], index: i + 2 })
+        const temp = [{ url: this.pages[i], index: i }];
+        if (this.pages.length > i + 1) temp.push({ url: this.pages[i + 1], index: i + 1 })
         arr.push(temp)
       }
       this.#doublePagedArr = arr
@@ -144,7 +144,7 @@ export class MangaReader extends LitElement {
     return this.#doublePagedArr.map((arr, index) => html`
       <div class='page' data-page-no=${index + 1}>
       ${arr.map(({ url, index }) =>
-      html`<img id="page-${index + 1}" loading='lazy' src=${url} />`)} 
+      html`<mr-image id="page-${index + 1}"  src=${url}></mr-image>`)} 
       </div>`)
   }
 
@@ -309,8 +309,10 @@ export class MangaReader extends LitElement {
 
   #preloadImages() {
     const image = this.#getPage(this.currentPage)?.firstElementChild as MRImage;
-    // this is so that if current page is loaded we move on to loading the others right away
+
     if (!image) return
+
+    // this is so that if current page is loaded we move on to loading the others right away
     if (image.state === 'done') this.#preloadCallBack()
     // this is so that the current image loads before loading others
     else if (image.state === 'idle') {
@@ -319,15 +321,20 @@ export class MangaReader extends LitElement {
     }
     else image.addEventListener('mr-image-load', () => this.#preloadCallBack())
 
-
   }
 
   #preloadCallBack() {
+    let currentPage = !this.#isDoublePageMode()
+      ? this.currentPage
+      : (this.mode.endsWith('odd')
+        ? (this.currentPage * 2) - 2
+        : (this.currentPage * 2) - 1);
+
     let num = 1
     while (num <= this.preloadNo) {
-      let nextPage: number;
-      if (this.dir === "ltr") nextPage = this.currentPage + num
-      else nextPage = this.currentPage - num
+      let nextPage = this.dir === "ltr"
+        ? currentPage + num
+        : currentPage - num;
       const image = (this.container.querySelector('#page-' + nextPage) as MRImage)
       if (image && image.state !== 'done') image.load();
       num++
