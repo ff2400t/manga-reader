@@ -137,12 +137,16 @@ export class MangaReader extends LitElement {
 
   updated(changedProperties: PropertyValueMap<any>) {
     if (changedProperties.has("mode")) {
-
-      // the nullish operator is here to prevent it from exploding on the first render
-      this.observer?.disconnect()
-
-      if (this.mode === 'webtoon') this.setUpWebtoonIntersectionObserver()
-      else {
+      const prevMode = changedProperties.get('mode') 
+      if (this.mode === 'webtoon') {
+        this.observer?.disconnect()
+        this.setUpWebtoonIntersectionObserver()
+      }
+      else if (
+        prevMode === undefined ||
+        prevMode === 'webtoon'
+      ) {
+        this.observer?.disconnect()
         this.setUpHorizontalIntersectionObserver()
       }
     }
