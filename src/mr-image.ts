@@ -94,9 +94,12 @@ export default class MRImage extends LitElement {
 
   @eventOptions({ passive: true })
   loadHandler(e: Event) {
-    const img = e.target as HTMLImageElement
-    img.style.setProperty('--natural-width', img.naturalWidth + "px")
-    img.style.setProperty('--natural-height', img.naturalHeight + "px")
+    const img = e.target as HTMLImageElement;
+    const dpr = window.devicePixelRatio;
+    const width = img.naturalWidth / dpr;
+    const height = img.naturalHeight /dpr;
+    img.style.setProperty('--natural-width', width + "px");
+    img.style.setProperty('--natural-height', height + "px");
   }
 
   static styles = css`
