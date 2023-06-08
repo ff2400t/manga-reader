@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manga Reader Demo</title>
+  <link rel="stylesheet" href="https://unpkg.com/modern-css-reset@1.4.0/dist/reset.min.css" type="text/css">
+  <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura-vader.css" type="text/css">
+  <script type="module" src="/src/manga-reader.ts"></script>
+  <script type="module" defer src="/demo/index.js"></script>
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+      color-scheme: dark light;
+      max-width: initial;
+      height: 100vh;
+      overflow-hidden;
+    }
+
+    .controls {
+      width: 100%;
+      max-width: 500px;
+      padding: 1rem;
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      z-index: 2;
+      background-color: inherit;
+      translate: -50% 100%;
+      transition: translate 200ms ease-in-out;
+    }
+
+    .controls.open {
+      translate: -50% 0%;
+    }
+
+    .form-group {
+      display: flex;
+      justify-content: space-between;
+    } 
+  </style>
+</head>
+
+<body>
+  <section class='controls'>
+    <form class='form' v-scope>
+
+      <div class='form-group'>
+        <label>Mode: </label>
+        <select selected='horizontal' v-model="mode">
+          <option value="horizontal">Horizontal</option>
+          <option value="vertical">Vertical</option>
+          <option value="webtoon">Webtoon</option>
+          <option value="double-page">Double Page</option>
+          <option value="double-page-odd">Double Page Odd</option>
+        </select>
+      </div>
+
+      <div v-if='mode !== "webtoon"' class='form-group'>
+        <label>Direction </label>
+        <select default='ltr' v-model="dir">
+          <option value="ltr">Left to right</option>
+          <option value="rtl">Right to Left</option>
+        </select>
+      </div> 
+
+      <div class='form-group'>
+        <label>Scale Type</label>
+        <select default='fit-height' v-model="scaleType">
+          <option value="fit-height">Fit Height</option>
+          <option value="fit-width">Fit Width</option>
+          <option value="stretch">Stretch</option>
+          <option value="Original Size">Original Size</option>
+        </select>
+      </div> 
+
+      <label> <input @change="showTouchIndicator" type='checkbox' v-model='showTouchArea' /> Show touch Area</label>
+
+    </form>
+  </section>
+  <manga-reader mode='horizontal' dir='ltr' scaleType='fitHeight'>
+  </manga-reader>
+</body>
+
+</html>
