@@ -17,15 +17,15 @@
 </head>
 
 <body>
-  <manga-reader >
+  <manga-reader>
   </manga-reader>
   <script>
 
-    const reader = document.querySelector('manga-reader');
-    const mode = 'horizontal'
-
-    reader.pages = Array.from({length: 9}).map((_, i) => `/${mode}/00${i+1}.jpg`)
-    reader.mode = mode+ '-rtl'
+    const reader = document.querySelector('manga-reader'); 
+    reader.pages = Array.from({length: 9}).map((_, i) => `/pages/00${i+1}.jpg`)
+    reader.preloadNo = 3
+    reader.currentPage = 8
+    reader.handleMiddleClick = () => console.log("middle")
 
   </script>
 </body>
