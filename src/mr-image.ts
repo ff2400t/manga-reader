@@ -1,5 +1,5 @@
 import { customElement, eventOptions, property, state } from 'lit/decorators.js';
-import { LitElement, css, html } from 'lit';
+import { LitElement, PropertyValueMap, css, html } from 'lit';
 import { choose } from 'lit/directives/choose.js';
 import debounce from './debounce.js';
 import './mr-progress-ring.ts';
@@ -22,10 +22,10 @@ export default class MRImage extends LitElement {
   src: string = ""
 
   @state()
-  fetchingProgress = 20;
+  fetchingProgress = 0;
 
   @state()
-  objectURL!:string; 
+  objectURL!: string;
 
   // function which is debounced and which sets the  
   setFetchProgress(newValue: number) {
@@ -33,10 +33,21 @@ export default class MRImage extends LitElement {
     this.requestUpdate();
   }
 
+  willUpdate(changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    if (changedProperties.has('src')
+      && changedProperties.get('src') !== undefined
+      && this.src
+      && this.src !== "") {
+      this.state = 'idle';
+      this.fetchingProgress = 0;
+      this.objectURL = "";
+    }
+  }
+
   async load() {
-    const setProgress = debounce(this.setFetchProgress.bind(this), 300) 
+    if(this.state !== 'idle') return;
+    const setProgress = debounce(this.setFetchProgress.bind(this), 300)
     try {
-      // Step 1: start the fetch and obtain a reader
       const response = (await fetch(this.src))!;
 
       if (!response.ok) throw Error("Unable to fetch");
@@ -44,12 +55,10 @@ export default class MRImage extends LitElement {
       this.state = 'fetching'!;
       const reader = response.body!.getReader();
 
-      // Step 2: get total length
       const contentLength = +response.headers.get('Content-Length')!;
 
-      // Step 3: read the data
-      let receivedLength = 0; // received that many bytes at the moment
-      let chunks = []; // array of received binary chunks (comprises the body)
+      let receivedLength = 0;
+      let chunks = [];
       while (true) {
         const { done, value } = await reader.read();
 
@@ -59,18 +68,15 @@ export default class MRImage extends LitElement {
         receivedLength += value.length;
 
         const newPercentage = +((receivedLength * 100) / contentLength).toFixed(0);
-        setProgress(newPercentage) 
+        setProgress(newPercentage)
       } 
-
-      let blob = new Blob(chunks) 
+      let blob = new Blob(chunks)
       this.objectURL = URL.createObjectURL(blob)
       this.state = 'done'
 
       const event = new CustomEvent('mr-image-load')
-      this.dispatchEvent(event)
-
-      // Step 5: decode into a string
-    } catch { 
+      this.dispatchEvent(event) 
+    } catch {
       this.state = 'failure'
       console.log(this.state)
     }
@@ -84,8 +90,8 @@ export default class MRImage extends LitElement {
       ['failure', () => html`<button class='retry-btn' @click=${this.load}>Retry</button>`]
     ])} 
       </div>`
-  } 
-  
+  }
+
   @eventOptions({ passive: true })
   loadHandler(e: Event) {
     const img = e.target as HTMLImageElement
