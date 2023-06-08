@@ -448,11 +448,6 @@ export class MangaReader extends LitElement {
    justify-content: center;
   */
   }
-  #container mr-image{ 
-    display: flex;
-    justify-content: center;
-  }
-  
 
   #container:not(.webtoon) mr-image{
     width: 100%;
@@ -463,7 +458,7 @@ export class MangaReader extends LitElement {
     display: block;
     width: auto;
     height: 100%;
-    margin-block:auto;
+    margin: auto;
   }
  
   #container.double-page mr-image:first-child::part(img){
