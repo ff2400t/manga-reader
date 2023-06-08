@@ -152,6 +152,7 @@ export class MangaReader extends LitElement {
     const classes = {
       vertical: this.mode === 'vertical',
       webtoon: this.mode === 'webtoon',
+      "double-page": this.#isDoublePageMode()
     }
     return html`
       <div style='position: relative'>
@@ -440,29 +441,29 @@ export class MangaReader extends LitElement {
    justify-content: center;
   */
   }
-  #container .page mr-image{ 
+  #container mr-image{ 
     display: flex;
     justify-content: center;
   }
   
 
-  #container:not(.webtoon) .page mr-image{
+  #container:not(.webtoon) mr-image{
     width: 100%;
     height: 100%;
   } 
   
-  #container:not(.webtoon) .page mr-image::part(img){
+  #container:not(.webtoon) mr-image::part(img){
     display: block;
     width: auto;
     height: 100%;
     margin-block:auto;
   }
-
-  #container .page img:first-child{
+ 
+  #container.double-page mr-image:first-child::part(img){
     margin-inline-start: auto;
   }
 
-  #container .page img:last-child {
+  #container.double-page mr-image:last-child::part(img){
     margin-inline-end: auto;
   }
 
@@ -471,16 +472,16 @@ export class MangaReader extends LitElement {
   don't add any additional css to make that work
   */ 
 
-  #container:not(.webtoon)[data-scale-type="fit-width"] .page  mr-image::part(img){
+  #container:not(.webtoon)[data-scale-type="fit-width"] mr-image::part(img){
     width: 100%; 
     height: auto;
   }    
 
-  #container:not(.webtoon)[data-scale-type="stretch"] .page  mr-image::part(img){
+  #container:not(.webtoon)[data-scale-type="stretch"] mr-image::part(img){
     width: 100%; 
   }    
 
-  #container:not(.webtoon)[data-scale-type="original-size"] .page  mr-image::part(img){
+  #container:not(.webtoon)[data-scale-type="original-size"]  mr-image::part(img){
     width: var(--natrual-width); 
     height: var(--natrual-height); 
   }    
@@ -492,14 +493,14 @@ export class MangaReader extends LitElement {
     overflow-y: scroll;
   }
 
-  .webtoon .page {
+  .webtoon {
     width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center; 
   }
 
-  .webtoon .page mr-image::part(img){
+  .webtoon mr-image::part(img){
     width: 100%;
     height: 100%;
   }
