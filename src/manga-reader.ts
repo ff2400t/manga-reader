@@ -131,13 +131,9 @@ export class MangaReader extends LitElement {
     super.attributeChangedCallback(name, oldValue, newValue)
   }
 
-  firstUpdated() {
-    if (this.currentPage) this.gotoPage(this.currentPage)
-  }
-
   updated(changedProperties: PropertyValueMap<any>) {
     if (changedProperties.has("mode")) {
-      const prevMode = changedProperties.get('mode') 
+      const prevMode: string = changedProperties.get('mode')
       if (this.mode === 'webtoon') {
         this.observer?.disconnect()
         this.setUpWebtoonIntersectionObserver()
@@ -149,6 +145,26 @@ export class MangaReader extends LitElement {
         this.observer?.disconnect()
         this.setUpHorizontalIntersectionObserver()
       }
+
+      // from others to others is the default case 
+      let currentPage = this.currentPage;
+      const isDoublePage = this.#isDoublePageMode()
+
+      // from double-page to others
+      if (prevMode && prevMode.startsWith('double-page') && !isDoublePage) {
+        currentPage =
+          this.mode.endsWith('odd')
+            ? (this.currentPage * 2) - 2
+            : (this.currentPage * 2) - 1;
+      }
+      // from others to double page
+      else if (prevMode && !prevMode.startsWith('double-page') && isDoublePage) {
+        currentPage =
+          this.mode.endsWith('odd')
+            ? Math.floor(currentPage / 2) + 1
+            : currentPage = Math.ceil(currentPage / 2)
+      } 
+      this.gotoPage(currentPage)
     }
   }
 
@@ -192,7 +208,7 @@ export class MangaReader extends LitElement {
         : this.#listTemplate()
       }
         </div>
-        <div @click=${this.touchIndicatorHandler} id="touch-indicator">
+        <div id="touch-indicator">
           <p id="touch-indicator-prev">Previous</p>
           <p id="touch-indicator-next">Next</p>
         </div>
