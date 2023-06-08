@@ -79,6 +79,15 @@ export class MangaReader extends LitElement {
 
   shouldUpdate(changedProperties: PropertyValues<this>) {
     if (changedProperties.size === 1 && changedProperties.has("currentPage")) return false
+    // undefined check is to ensure that this is not the first render
+    else if (
+      changedProperties.has('preloadNo')
+      && changedProperties.get('preloadNo') !== undefined
+      && this.preloadNo > changedProperties.get('preloadNo')
+    ) {
+      this.#preloadImages();
+      return false
+    }
     return true
   }
 
@@ -107,9 +116,7 @@ export class MangaReader extends LitElement {
   }
 
   firstUpdated() {
-    const currentPage = this.getAttribute('current-page');
-    if (currentPage) this.gotoPage(+currentPage)
-    this.#preloadImages()
+    if (this.currentPage) this.gotoPage(this.currentPage)
   }
 
   updated(changedProperties: PropertyValueMap<any>) {
@@ -337,7 +344,7 @@ export class MangaReader extends LitElement {
         ? currentPage + num
         : currentPage - num;
       const image = (this.container.querySelector('#page-' + nextPage) as MRImage)
-      if (image && image.state !== 'done') image.load();
+      if (image && image.state === 'idle') image.load();
       num++
     }
   }
