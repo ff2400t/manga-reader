@@ -1,5 +1,5 @@
 import { LitElement, PropertyValueMap, PropertyValues, css, html, nothing } from 'lit'
-import { customElement, eventOptions, property, query } from 'lit/decorators.js'
+import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
 import './mr-image';
 import MRImage from './mr-image';
@@ -35,7 +35,8 @@ export class MangaReader extends LitElement {
   @property()
   scaleType: ScaleType = 'fit-height'
 
-  showTouchIndicatorOnModeChange = false
+  @property()
+  showTouchIndicator = false;
 
   /*
   ** Function to Call if the Touch Action is Middle
@@ -88,6 +89,21 @@ export class MangaReader extends LitElement {
       this.#preloadImages();
       return false
     }
+    // undefined check is to ensure that this is not the first render
+    else if (
+      changedProperties.has('showTouchIndicator')
+      && changedProperties.get('showTouchIndicator') !== undefined
+    ) {
+      if (this.showTouchIndicator) {
+        this.touchIndicator.style.display = 'grid';
+        this.touchIndicator.addEventListener('click', this.#touchIndicatorHandler.bind(this))
+      }
+      else {
+        this.touchIndicator.style.display = 'none'
+        this.touchIndicator.removeEventListener('click', this.#touchIndicatorHandler.bind(this))
+      }
+      return false;
+    }
     return true
   }
 
@@ -124,10 +140,6 @@ export class MangaReader extends LitElement {
 
       // the nullish operator is here to prevent it from exploding on the first render
       this.observer?.disconnect()
-
-      // do show this on the initial load of the element
-      if (changedProperties.get("mode") !== undefined
-        && this.showTouchIndicatorOnModeChange) this.showTouchIndicator()
 
       if (this.mode === 'webtoon') this.setUpWebtoonIntersectionObserver()
       else {
@@ -390,17 +402,9 @@ export class MangaReader extends LitElement {
   ** This will shows the touch area grid and the action 
   ** When clicked it will trigger an opacity animation. The duration of the animatin can be customized by passing that as the first argument
   */
-  showTouchIndicator() {
-    this.touchIndicator.style.display = 'grid';
-  }
-
-  hideTouchIndicator() {
-    this.touchIndicator.style.display = 'none'
-  }
-
-  touchIndicatorHandler() {
+  #touchIndicatorHandler() {
     this.touchIndicator.animate([{ opacity: 0 }], { duration: 500 }).onfinish = () => {
-      this.touchIndicator.style.display = 'none'
+      this.showTouchIndicator = false;
     }
   }
 
