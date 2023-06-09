@@ -162,7 +162,7 @@ export class MangaReader extends LitElement {
           this.mode.endsWith('odd')
             ? Math.floor(currentPage / 2) + 1
             : currentPage = Math.ceil(currentPage / 2)
-      } 
+      }
       this.gotoPage(currentPage)
     }
   }

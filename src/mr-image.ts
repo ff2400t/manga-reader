@@ -12,6 +12,9 @@ import './mr-spinner.ts';
 // done: show the actual image
 type ImageState = "idle" | "fetching" | "done" | 'failure'
 
+// i am not sure but this might result in huge memory leaks so beware of this one
+const urlMap = new Map();
+
 @customElement('mr-image')
 export default class MRImage extends LitElement {
 
@@ -26,6 +29,13 @@ export default class MRImage extends LitElement {
 
   @state()
   objectURL!: string;
+
+  firstUpdated() {
+    if (urlMap.has(this.src)) {
+      this.objectURL = urlMap.get(this.src)
+      this.state = 'done'
+    }
+  }
 
   // function which is debounced and which sets the  
   setFetchProgress(newValue: number) {
@@ -45,7 +55,7 @@ export default class MRImage extends LitElement {
   }
 
   async load() {
-    if(this.state !== 'idle') return;
+    if (this.state !== 'idle') return;
     const setProgress = debounce(this.setFetchProgress.bind(this), 300)
     try {
       const response = (await fetch(this.src))!;
@@ -69,13 +79,16 @@ export default class MRImage extends LitElement {
 
         const newPercentage = +((receivedLength * 100) / contentLength).toFixed(0);
         setProgress(newPercentage)
-      } 
+      }
+
       let blob = new Blob(chunks)
       this.objectURL = URL.createObjectURL(blob)
       this.state = 'done'
 
+      urlMap.set(this.src, this.objectURL)
+
       const event = new CustomEvent('mr-image-load')
-      this.dispatchEvent(event) 
+      this.dispatchEvent(event)
     } catch {
       this.state = 'failure'
       console.log(this.state)
@@ -84,7 +97,7 @@ export default class MRImage extends LitElement {
 
   render() {
     if (this.state === 'done') return html`<img @load=${this.loadHandler} part='img' src=${this.objectURL}/>`
-    return html`<div class='image-container'>${choose(this.state, [
+    return html`<div part='container' class='image-container'>${choose(this.state, [
       ['idle', () => html`<mr-spinner></mr-spinner>`],
       ['fetching', () => html`<mr-progress-ring value="${this.fetchingProgress}"><mr-progress-ring >`],
       ['failure', () => html`<button class='retry-btn' @click=${this.load}>Retry</button>`]
@@ -97,7 +110,7 @@ export default class MRImage extends LitElement {
     const img = e.target as HTMLImageElement;
     const dpr = window.devicePixelRatio;
     const width = img.naturalWidth / dpr;
-    const height = img.naturalHeight /dpr;
+    const height = img.naturalHeight / dpr;
     img.style.setProperty('--natural-width', width + "px");
     img.style.setProperty('--natural-height', height + "px");
   }
@@ -119,7 +132,7 @@ export default class MRImage extends LitElement {
   
   .image-container{
     box-sizing: border-box;
-    width: var(--mr-width);
+    width: calc(var(--mr-width) / 2) ;
     height: var(--mr-height); 
     margin-inline: auto;
     padding-top: calc(var(--mr-height) * 0.3);
