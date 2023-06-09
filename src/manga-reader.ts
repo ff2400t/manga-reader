@@ -138,10 +138,9 @@ export class MangaReader extends LitElement {
         this.observer?.disconnect()
         this.setUpWebtoonIntersectionObserver()
       }
-      else if (
-        prevMode === undefined ||
-        prevMode === 'webtoon'
-      ) {
+      else {
+        // i wanted to make some optimizaiton here, but we also need to reattach the listners
+        // when moving between single page to double-page mode  and even between the two double-page variants
         this.observer?.disconnect()
         this.setUpHorizontalIntersectionObserver()
       }
