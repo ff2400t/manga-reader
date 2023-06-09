@@ -486,11 +486,15 @@ export class MangaReader extends LitElement {
   }
  
   #container.double-page mr-image:first-child::part(img){
-    margin-inline-start: auto;
+    margin-inline: auto 0;
   }
 
   #container.double-page mr-image:last-child::part(img){
-    margin-inline-end: auto;
+    margin-inline: 0 auto;
+  }
+
+  #container.double-page mr-image:only-child::part(img){
+    margin-inline: auto;
   }
 
   /*
