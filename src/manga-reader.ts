@@ -217,11 +217,12 @@ export class MangaReader extends LitElement {
 
   /**
    * Go to a Page with a particular page number
-   * This will return Boolean to indicate whether the page change was successfull
+   * and this also checks if the page should exist or not
+   * This will return Boolean to indicate whether the page changed was successfull
    */
   gotoPage(num: number) {
-    if (num < 1 || num > this.pages.length) return false;
     const page = this.#getPage(num)
+    if (!page) return false
     page?.scrollIntoView()
     this.currentPage = num
     this.#dispatchPageChangeEvent(num)
