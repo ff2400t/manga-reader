@@ -266,10 +266,12 @@ export class MangaReader extends LitElement {
         })
       }
     } else {
-      if (action === Action.Prev) this.gotoPage(this.currentPage - 1)
-      else if (action === Action.Next) this.gotoPage(this.currentPage + 1)
-      else {
+      if(action === Action.Middle){ 
         if (typeof this.handleMiddleClick === "function") this.handleMiddleClick()
+      } else {
+        let change = action === Action. Prev ? -1 : 1; 
+        change *= this.dir === 'rtl' ? -1 : 1
+        this.gotoPage(this.currentPage + change)
       }
     }
   }
