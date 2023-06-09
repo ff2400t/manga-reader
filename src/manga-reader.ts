@@ -385,9 +385,7 @@ export class MangaReader extends LitElement {
 
     let num = 1
     while (num <= this.preloadNo) {
-      let nextPage = this.dir === "ltr"
-        ? currentPage + num
-        : currentPage - num;
+      let nextPage = currentPage + num
       const image = (this.container.querySelector('#page-' + nextPage) as MRImage)
       if (image && image.state === 'idle') image.load();
       num++
