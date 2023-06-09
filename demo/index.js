@@ -1,13 +1,13 @@
-import { createApp } from 'https://unpkg.com/petite-vue?module' 
+import { createApp } from 'https://unpkg.com/petite-vue?module'
 
 const reader = document.querySelector('manga-reader');
 const controls = document.querySelector('.controls');
 
-reader.pages = Array.from({length: 9}).map((_, i) => `/pages/00${i + 1}.jpg`)
+reader.pages = Array.from({ length: 9 }).map((_, i) => `/pages/00${i + 1}.jpg`)
 reader.handleMiddleClick = () => controls.classList.toggle('open')
 reader.preloadNo = 3
 
-reader.addEventListener('pagechange', (e) => console.log(e)) 
+reader.addEventListener('pagechange', (e) => console.log(e))
 
 createApp({
   get mode() { return reader.mode },
@@ -17,12 +17,9 @@ createApp({
   set dir(newValue) { reader.dir = newValue },
 
   get scaleType() { return reader.scaleType },
-  set scaleType(newValue) { reader.scaleType = newValue }, 
+  set scaleType(newValue) { reader.scaleType = newValue },
 
-  showTouchArea: false,
-  showTouchIndicator() {
-    console.log(this.showTouchArea)
-    if (!this.showTouchArea) reader.hideTouchIndicator();
-    else reader.showTouchIndicator()
-  }
+  get showTouchIndicator() { return reader.showTouchIndicator },
+  set showTouchIndicator(newValue) { reader.showTouchIndicator = newValue },
+
 }).mount()

@@ -8,9 +8,9 @@
   <title>Vite + Lit + TS</title>
   <script type="module" src="/src/manga-reader.ts"></script>
   <style>
-   body { 
+    body {
       padding: 0;
-      margin: 0; 
+      margin: 0;
       background-color: black;
     }
   </style>
@@ -21,10 +21,11 @@
   </manga-reader>
   <script>
 
-    const reader = document.querySelector('manga-reader'); 
-    reader.pages = Array.from({length: 9}).map((_, i) => `/pages/00${i+1}.jpg`)
-    reader.preloadNo = 3
-    reader.currentPage = 8
+    const reader = document.querySelector('manga-reader');
+    reader.pages = Array.from({length: 9}).map((_, i) => `/pages/00${i + 1}.jpg`)
+    reader.mode = 'double-page';
+    reader.preloadNo = 3;
+    // reader.currentPage = 4
     reader.handleMiddleClick = () => console.log("middle")
 
   </script>
