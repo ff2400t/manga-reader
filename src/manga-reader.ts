@@ -502,6 +502,11 @@ export class MangaReader extends LitElement {
   don't add any additional css to make that work
   */ 
 
+  #container:not(.webtoon)[data-scale-type="fit-width"] mr-image{
+    display: flex;
+    align-items: center; 
+  }
+
   #container:not(.webtoon)[data-scale-type="fit-width"] mr-image::part(img){
     width: 100%; 
     height: auto;
