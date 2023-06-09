@@ -39,6 +39,12 @@ export class MangaReader extends LitElement {
   showTouchIndicator = false;
 
   /*
+  ** Padding used to control the webtoon mode it can be anything between 0 and 80
+  */
+  @property()
+  webtoonPadding = 0;
+
+  /*
   ** Function to Call if the Touch Action is Middle
   */
   handleMiddleClick!: () => void;
@@ -103,6 +109,13 @@ export class MangaReader extends LitElement {
         this.touchIndicator.removeEventListener('click', this.#touchIndicatorHandler.bind(this))
       }
       return false;
+    }
+    else if (
+      changedProperties.has('webtoonPadding')
+      && changedProperties.get('webtoonPadding') !== undefined
+    ) {
+      if(!(this.webtoonPadding > 45)) this.container.style.setProperty('--mr-webtoon-padding', this.webtoonPadding + "%")
+      return false
     }
     return true
   }
@@ -437,6 +450,7 @@ export class MangaReader extends LitElement {
     --mr-indicator-prev-color: orangered;
     --mr-indicator-next-color: green;
     --mr-bg: black;  
+    --mr-webtoon-padding: 0%;
   }
 
   #container{
@@ -536,8 +550,9 @@ export class MangaReader extends LitElement {
   }
 
   .webtoon mr-image::part(img){
-    width: 100%;
-    height: 100%;
+    display: block;
+    padding-inline: var(--mr-webtoon-padding);
+    width: calc(100% - calc( 2 * var(--mr-webtoon-padding)));
   }
 
   /* Touch Idicator styles*/
