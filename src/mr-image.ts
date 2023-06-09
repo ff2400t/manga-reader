@@ -54,13 +54,20 @@ export default class MRImage extends LitElement {
     }
   }
 
+  // this only here to prevent triggering multiple promises while one is in flight in some senarios
+  #inFlightpromise: undefined | Promise<Response>;
+
   async load() {
     if (this.state !== 'idle') return;
+    if (this.#inFlightpromise !== undefined) return;
     const setProgress = debounce(this.setFetchProgress.bind(this), 300)
     try {
-      const response = (await fetch(this.src))!;
+      const fetchPromise = fetch(this.src);
+      this.#inFlightpromise = fetchPromise
+      const response = await fetchPromise
 
       if (!response.ok) throw Error("Unable to fetch");
+
 
       this.state = 'fetching'!;
       const reader = response.body!.getReader();
@@ -100,7 +107,7 @@ export default class MRImage extends LitElement {
     return html`<div part='container' class='image-container'>${choose(this.state, [
       ['idle', () => html`<mr-spinner></mr-spinner>`],
       ['fetching', () => html`<mr-progress-ring value="${this.fetchingProgress}"><mr-progress-ring >`],
-      ['failure', () => html`<button class='retry-btn' @click=${this.load}>Retry</button>`]
+      ['failure', () => html`<button class='retry-btn' @click=${this.retry}>Retry</button>`]
     ])} 
       </div>`
   }
@@ -111,8 +118,16 @@ export default class MRImage extends LitElement {
     const dpr = window.devicePixelRatio;
     const width = img.naturalWidth / dpr;
     const height = img.naturalHeight / dpr;
+    this.orientation = img.naturalWidth > img.naturalHeight ? 'landscape' : 'portrait'
     img.style.setProperty('--natural-width', width + "px");
     img.style.setProperty('--natural-height', height + "px");
+  }
+
+  retry() {
+    if (this.state === 'failure') {
+      this.state = 'idle'
+      this.load()
+    }
   }
 
   static styles = css`
