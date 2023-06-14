@@ -59,6 +59,7 @@
           </select>
         </div>
 
+        <!-- this doesn't have webtoon here because the writing mode affects the story line:w:wkjjkk-->
         <div v-if='mode !== "webtoon"' class='form-group'>
           <label>Direction </label>
           <select default='ltr' v-model="dir">
@@ -67,7 +68,12 @@
           </select>
         </div>
 
-        <div class='form-group'>
+        <div v-if='mode === "webtoon"' class='form-group'>
+          <label>Padding</label>
+          <input type='range' min="0" max='45' v-model="webtoonPadding"/>
+        </div>
+
+        <div v-if='mode !== "webtoon"' class='form-group'>
           <label>Scale Type</label>
           <select default='fit-height' v-model="scaleType">
             <option value="fit-height">Fit Height</option>
@@ -84,10 +90,6 @@
 
     const reader = document.querySelector('manga-reader');
     reader.pages = Array.from({length: 9}).map((_, i) => `/pages/00${i + 1}.jpg`)
-    // reader.mode = 'double-page';
-    reader.preloadNo = 3;
-    reader.currentPage = 4
-    reader.handleMiddleClick = () => console.log("middle")
 
   </script>
 </body>
