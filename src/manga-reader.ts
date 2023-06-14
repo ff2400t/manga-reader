@@ -1,8 +1,9 @@
-import { LitElement, PropertyValueMap, PropertyValues, css, html, nothing, render } from 'lit'
+import { LitElement, PropertyValueMap, PropertyValues, css, html, nothing, render, unsafeCSS } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
 import './mr-image';
 import MRImage from './mr-image';
+import styles from './styles.css?inline';
 
 type Mode = 'horizontal' | 'vertical' | 'double-page' | 'double-page-odd' | 'webtoon';
 type ReadingDirection = 'rtl' | 'ltr'
@@ -462,167 +463,7 @@ export class MangaReader extends LitElement {
     }
   }
 
-  static styles = css`
-
-  :host{
-    overflow: hidden;
-    --mr-width: 100vw;
-    --mr-height: 100vh;
-    --mr-indicator-prev-color: orangered;
-    --mr-indicator-next-color: green;
-    --mr-bg: black;  
-    --mr-webtoon-padding: 0%;
-  }
-
-  #container{
-    display: grid;
-    height: var(--mr-height);
-    width: var(--mr-width);
-    background: var(--mr-bg)
-  }
-
-  #container:not(.webtoon) {
-    overflow-x: scroll;
-    scroll-snap-type: x mandatory;
-    grid-auto-flow: column;
-    grid-auto-columns: var(--mr-width);
-  }
-
-  #container.vertical{
-    scroll-snap-type: y mandatory;
-    grid-auto-flow: row;
-    grid-auto-rows: var(--mr-height); 
-  }
-
-  #container:not(.webtoon) .page {
-    scroll-snap-align: center;
-    width: var(--mr-width);
-    height: var(--mr-height);
-    overflow-y: scroll;
-    display: flex;  
-  /*
-   There is a problem with scrolling when this is used, this can be resolved with
-   using the safe keyword but chrome and safari don't support that yet;
-   so instead we are using margin for solving this and 
-   justify-content: center;
-  */
-  }
-
-  #container:not(.webtoon) mr-image{
-    width: 100%;
-    height: 100%;
-  } 
-  
-  #container:not(.webtoon) mr-image::part(img){
-    display: block;
-    width: auto;
-    height: 100%;
-    margin: auto;
-  }
- 
-  #container.double-page mr-image:first-child::part(img){
-    margin-inline: auto 0;
-  }
-
-  #container.double-page mr-image:last-child::part(img){
-    margin-inline: 0 auto;
-  }
-
-  #container.double-page mr-image:only-child::part(img){
-    margin-inline: auto;
-  }
-
-  /*
-  fit-height is the Default mode for Horizontal Reader so we just
-  don't add any additional css to make that work
-  */ 
-
-  #container:not(.webtoon)[data-scale-type="fit-width"] mr-image{
-    display: flex;
-    align-items: center; 
-  }
-
-  #container:not(.webtoon)[data-scale-type="fit-width"] mr-image::part(img){
-    width: 100%; 
-    height: auto;
-  }    
-
-  #container:not(.webtoon)[data-scale-type="stretch"] mr-image::part(img){
-    width: 100%; 
-  }    
-
-  #container:not(.webtoon)[data-scale-type="original-size"]  mr-image::part(img){
-    width: var(--natrual-width); 
-    height: var(--natrual-height); 
-  }    
-
-  #container.webtoon {
-    width: var(--mr-width);
-    height: var(--mr-height);
-    justify-items: center;
-    overflow-y: scroll;
-  }
-
-  .webtoon {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; 
-  }
-
-  .webtoon mr-image::part(img){
-    display: block;
-    padding-inline: var(--mr-webtoon-padding);
-    width: calc(100% - calc( 2 * var(--mr-webtoon-padding)));
-  }
-
-  /* Touch Idicator styles*/
-  #touch-indicator{
-    color: white;
-    position: absolute;
-    inset: 0;
-    display: none;
-    /* well the display is grid, but we let the javascript add that and remove that as it is needed*/
-    opacity: 0.75;
-    grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; 
-    height: var(--mr-height);
-    width: var(--mr-width)
-  }
-
-  #touch-indicator-prev, #touch-indicator-next{ 
-    display: grid;
-    place-content: center;
-    font-size: 3rem;
-    margin: 0px; 
-    grid-column: span 3;
-  }
-
-  #touch-indicator-prev{
-    background: var(--mr-indicator-prev-color);
-  }
-
-  #touch-indicator-next{
-    grid-row: 3;
-    background: var(--mr-indicator-next-color);
-  }
-
-  #touch-indicator::before{
-    content: "";
-    background: var(--mr-indicator-prev-color);
-    grid-row: 2;
-  }
-
-  #touch-indicator::after{
-    content: "";
-    background: var(--mr-indicator-next-color);
-    grid-column: 3
-  }
-
-  ::-webkit-scrollbar {
-    width: 0px;
-    height: 0px;
-  } 
-  `
+  static styles = css`${unsafeCSS(styles)}`
 }
 
 declare global {
