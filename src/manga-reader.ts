@@ -1,4 +1,4 @@
-import { LitElement, PropertyValueMap, PropertyValues, css, html, nothing } from 'lit'
+import { LitElement, PropertyValueMap, PropertyValues, css, html, nothing, render } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
 import './mr-image';
@@ -73,6 +73,8 @@ export class MangaReader extends LitElement {
 
   observer!: IntersectionObserver;
 
+  #pageCache: Map<string, MRImage> = new Map();
+
   connectedCallback() {
     super.connectedCallback()
     this.tabIndex = 0;
@@ -134,6 +136,10 @@ export class MangaReader extends LitElement {
       }
       this.#doublePagedArr = arr
     }
+
+    if (changedProperties.has('pages')) {
+      this.#pageCache.clear();
+    }
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -183,7 +189,7 @@ export class MangaReader extends LitElement {
   #listTemplate() {
     return this.pages.map((url, index) => html`
       <div class='page' data-page-no=${index + 1}>
-        <mr-image id="page-${index + 1}" src=${url}></mr-image>
+      ${this.#renderPage(url, index)}
         ${this.mode === 'webtoon'
         ? html`<div data-v-page-no=${index + 1}></div>`
         : nothing
@@ -195,8 +201,23 @@ export class MangaReader extends LitElement {
     return this.#doublePagedArr.map((arr, index) => html`
       <div class='page' data-page-no=${index + 1}>
       ${arr.map(({ url, index }) =>
-      html`<mr-image id="page-${index + 1}"  src=${url}></mr-image>`)} 
+      this.#renderPage(url, index))} 
       </div>`)
+  }
+
+  #renderPage(url: string, index: number) {
+    if (this.#pageCache.has(url)) {
+      const element = this.#pageCache.get(url)!;
+      if (+element.id.replace('page-', "") !== index) {
+        element.id = `page-${index}`
+      }
+      return element
+    }
+    const div = document.createElement('div');
+    render(html`<mr-image id="page-${index + 1}"  src=${url}></mr-image>`, div);
+    const element = div.firstElementChild as MRImage;
+    this.#pageCache.set(url, element);
+    return element;
   }
 
   render() {
