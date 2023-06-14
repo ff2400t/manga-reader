@@ -12,9 +12,6 @@ import './mr-spinner.ts';
 // done: show the actual image
 type ImageState = "idle" | "fetching" | "done" | 'failure'
 
-// i am not sure but this might result in huge memory leaks so beware of this one
-const urlMap = new Map();
-
 @customElement('mr-image')
 export default class MRImage extends LitElement {
 
@@ -30,17 +27,10 @@ export default class MRImage extends LitElement {
   @state()
   objectURL!: string;
 
-  firstUpdated() {
-    if (urlMap.has(this.src)) {
-      this.objectURL = urlMap.get(this.src)
-      this.state = 'done'
-    }
-  }
 
   // function which is debounced and which sets the  
   setFetchProgress(newValue: number) {
     this.fetchingProgress = newValue;
-    this.requestUpdate();
   }
 
   willUpdate(changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
@@ -58,9 +48,10 @@ export default class MRImage extends LitElement {
   #inFlightpromise: undefined | Promise<Response>;
 
   async load() {
-    if (this.state !== 'idle') return;
-    if (this.#inFlightpromise !== undefined) return;
+    if (this.state !== 'idle' && this.state !== 'failure' && this.#inFlightpromise !== undefined) return;
+
     const setProgress = debounce(this.setFetchProgress.bind(this), 300)
+
     try {
       const fetchPromise = fetch(this.src);
       this.#inFlightpromise = fetchPromise
@@ -88,17 +79,19 @@ export default class MRImage extends LitElement {
         setProgress(newPercentage)
       }
 
+      this.#inFlightpromise = undefined;
+
       let blob = new Blob(chunks)
       this.objectURL = URL.createObjectURL(blob)
       this.state = 'done'
 
-      urlMap.set(this.src, this.objectURL)
-
-      const event = new CustomEvent('mr-image-load')
+      const event = new CustomEvent('mr-image-load', {
+        composed: true,
+        bubbles: true
+      })
       this.dispatchEvent(event)
     } catch {
       this.state = 'failure'
-      console.log(this.state)
     }
   }
 
@@ -123,11 +116,9 @@ export default class MRImage extends LitElement {
     img.style.setProperty('--natural-height', height + "px");
   }
 
-  retry() {
-    if (this.state === 'failure') {
-      this.state = 'idle'
-      this.load()
-    }
+  async retry() {
+    this.state = 'idle'
+    return this.load()
   }
 
   static styles = css`
