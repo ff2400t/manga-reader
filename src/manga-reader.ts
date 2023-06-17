@@ -7,7 +7,7 @@ import styles from './styles.css?inline';
 
 type Mode = 'horizontal' | 'vertical' | 'double-page' | 'double-page-odd' | 'webtoon';
 type ReadingDirection = 'rtl' | 'ltr'
-type ScaleType = 'fit-width' | 'fit-height' | 'stretch' | 'original-size';
+type ScaleType = 'fit-width' | 'fit-height' | 'stretch' | 'original-size' | "smart-fit";
 
 enum Action {
   Prev,

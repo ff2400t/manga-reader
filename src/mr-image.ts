@@ -11,6 +11,7 @@ import './mr-spinner.ts';
 // fetching: When the fetching has started and we can show the progress bar
 // done: show the actual image
 type ImageState = "idle" | "fetching" | "done" | 'failure'
+type ImageOrientation = 'portrait' | 'landscape';
 
 @customElement('mr-image')
 export default class MRImage extends LitElement {
@@ -27,6 +28,8 @@ export default class MRImage extends LitElement {
   @state()
   objectURL!: string;
 
+  @property({ reflect: true })
+  orientation!: ImageOrientation;
 
   // function which is debounced and which sets the  
   setFetchProgress(newValue: number) {

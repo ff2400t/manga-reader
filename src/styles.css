@@ -89,6 +89,19 @@ don't add any additional css to make that work
   height: var(--natrual-height);
 }
 
+/*
+since fit-height is the default case we only need to handle the landscape case
+*/
+#container:not(.webtoon)[data-scale-type="smart-fit"] mr-image[orientation="landscape"]::part(img) {
+  width: 100%;
+  height: auto;
+}
+
+#container:not(.webtoon)[data-scale-type="smart-fit"] mr-image {
+  display: flex;
+  align-items: center;
+}
+
 #container.webtoon {
   width: var(--mr-width);
   height: var(--mr-height);
