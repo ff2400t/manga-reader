@@ -28,6 +28,10 @@
   grid-auto-rows: var(--mr-height);
 }
 
+#container .page {
+  contain: layout;
+}
+
 #container:not(.webtoon) .page {
   scroll-snap-align: center;
   width: var(--mr-width);
