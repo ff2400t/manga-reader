@@ -6,7 +6,7 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vite + Lit + TS</title>
-  <script type="module" src="/src/manga-reader.ts"></script>
+  <script type="module" src="/src/manga-reader-with-ui.ts"></script>
   <style>
     body {
       padding: 0;
@@ -17,17 +17,13 @@
 </head>
 
 <body>
-  <manga-reader>
-  </manga-reader>
+  <manga-reader-with-ui>
+  </manga-reader-with-ui>
   <script>
 
-    const reader = document.querySelector('manga-reader');
+    const reader = document.querySelector('manga-reader-with-ui');
     reader.pages = Array.from({length: 9}).map((_, i) => `/pages/00${i + 1}.jpg`)
-    reader.mode = 'double-page';
-    reader.preloadNo = 3;
-    // reader.currentPage = 4
-    reader.handleMiddleClick = () => console.log("middle")
-
+    reader.scaleType = 'smart-fit' 
   </script>
 </body>
 
