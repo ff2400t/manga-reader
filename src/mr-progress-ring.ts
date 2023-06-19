@@ -69,7 +69,7 @@ export default class MRProgressRing extends LitElement{
 
   .progress-ring__track,
   .progress-ring__indicator {
-    --radius: calc(var(--mr-loader-size) / 2 - max(var(--mr-track-width), var(--mr-track-width)) * 0.5);
+    --radius: calc(var(--mr-loader-size) / 2 - max(var(--mr-loader-track-width), var(--mr-loader-track-width)) * 0.5);
     --circumference: calc(var(--radius) * 2 * 3.141592654);
 
     fill: none;
@@ -80,12 +80,12 @@ export default class MRProgressRing extends LitElement{
 
   .progress-ring__track {
     stroke: var(--mr-bg);
-    stroke-width: var(--mr-track-width);
+    stroke-width: var(--mr-loader-track-width);
   }
 
   .progress-ring__indicator {
     stroke: var(--mr-loader-color);
-    stroke-width: var(--mr-track-width);
+    stroke-width: var(--mr-loader-track-width);
     stroke-linecap: round;
     transition-property: stroke-dashoffset;
     transition-duration: var(--indicator-transition-duration);
