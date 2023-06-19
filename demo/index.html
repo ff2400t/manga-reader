@@ -6,9 +6,7 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vite + Lit + TS</title>
-  <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura-vader.css" type="text/css">
-  <script type="module" src="/src/manga-reader.ts"></script>
-  <script type='module' src="index.js"></script>
+  <script type="module" src="/src/manga-reader-with-ui.ts"></script>
   <style>
     body {
       padding: 0;
@@ -45,50 +43,12 @@
 
 <body>
   <main>
-    <section class='controls'>
-      <form class='form' v-scope>
-
-        <div class='form-group'>
-          <label>Mode: </label>
-          <select selected='horizontal' v-model="mode">
-            <option value="horizontal">Horizontal</option>
-            <option value="vertical">Vertical</option>
-            <option value="webtoon">Webtoon</option>
-            <option value="double-page">Double Page</option>
-            <option value="double-page-odd">Double Page Odd</option>
-          </select>
-        </div>
-
-        <!-- this doesn't have webtoon here because the writing mode affects the story line:w:wkjjkk-->
-        <div v-if='mode !== "webtoon"' class='form-group'>
-          <label>Direction </label>
-          <select default='ltr' v-model="dir">
-            <option value="ltr">Left to right</option>
-            <option value="rtl">Right to Left</option>
-          </select>
-        </div>
-
-        <div v-if='mode === "webtoon"' class='form-group'>
-          <label>Padding</label>
-          <input type='range' min="0" max='45' v-model="webtoonPadding"/>
-        </div>
-
-        <div v-if='mode !== "webtoon"' class='form-group'>
-          <label>Scale Type</label>
-          <select default='fit-height' v-model="scaleType">
-            <option value="fit-height">Fit Height</option>
-            <option value="fit-width">Fit Width</option>
-            <option value="stretch">Stretch</option>
-            <option value="original-size">Original Size</option>
-          </select>
-        </div>
-    </section>
-    <manga-reader>
-    </manga-reader>
+    <manga-reader-with-ui>
+    </manga-reader-with-ui>
   </main>
   <script>
 
-    const reader = document.querySelector('manga-reader');
+    const reader = document.querySelector('manga-reader-with-ui');
     reader.pages = Array.from({length: 9}).map((_, i) => `/pages/00${i + 1}.jpg`)
 
   </script>
