@@ -45,6 +45,16 @@ export default class MangaReaderWithUI extends LitElement {
 		}
 	}
 
+	willUpdate(changedProperties: PropertyValues) {
+		if (changedProperties.has('mode')) {
+			if (this.mode === 'webtoon' && this.reader) {
+				this.reader.webtoonPadding = this.webtoonPadding;
+			}
+			if (this.mode.startsWith('double') && (this.scaleType === 'fit-screen' || this.scaleType === 'smart-fit')) {
+				this.scaleType = 'fit-height'
+			}
+		}
+	}
 
 	firstUpdated() {
 		this.reader.handleMiddleClick = () => {
@@ -62,9 +72,6 @@ export default class MangaReaderWithUI extends LitElement {
 			}
 		}
 
-		if (changedProperties.has('mode') && this.mode === 'webtoon') {
-			this.reader.webtoonPadding = this.webtoonPadding;
-		}
 		if (changedProperties.has('pages') && this.pages.length > 0) {
 			this.reader.pages = this.pages
 		}
@@ -101,7 +108,12 @@ export default class MangaReaderWithUI extends LitElement {
             <option value="fit-width">Fit Width</option>
             <option value="stretch">Stretch</option>
             <option value="original-size">Original Size</option>
-          </select>`)
+            
+						${when(!this.mode.startsWith('double'), () =>
+				html`<option value="smart-fit">Smart Fit</option>
+								<option value="fit-screen">Fit screen</option>`)
+				} 
+		          </select>`)
 			}
 			</form>
 			`

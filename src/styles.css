@@ -106,6 +106,18 @@ since fit-height is the default case we only need to handle the landscape case
   align-items: center;
 }
 
+#container:not(.webtoon)[data-scale-type="fit-screen"] .page.fit-width mr-image::part(img) {
+  width: 100%;
+  height: auto;
+}
+
+#container:not(.webtoon)[data-scale-type="fit-screen"] .page.fit-width mr-image {
+  display: flex;
+  align-items: center;
+}
+
+/* webtoon */
+
 #container.webtoon {
   width: var(--mr-width);
   height: var(--mr-height);

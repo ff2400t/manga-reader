@@ -4,11 +4,16 @@ import { classMap } from 'lit/directives/class-map.js';
 import './mr-image';
 import MRImage from './mr-image';
 import styles from './styles.css?inline';
+import debounce from './debounce';
 
 type Mode = 'horizontal' | 'vertical' | 'double-page' | 'double-page-odd' | 'webtoon';
 type ReadingDirection = 'rtl' | 'ltr'
-type ScaleType = 'fit-width' | 'fit-height' | 'stretch' | 'original-size' | "smart-fit";
+/*
+for fit-screen, we assume that the layout is fit-height as default, but when we have to switch to fit-width
+*/
+type ScaleType = 'fit-screen' | 'fit-width' | 'fit-height' | 'stretch' | 'original-size' | "smart-fit";
 
+type OverflowState = "none" | "vertical" | "horizontal"
 enum Action {
   Prev,
   Next,
@@ -73,6 +78,8 @@ export class MangaReader extends LitElement {
   webtoonScrollAmount = 0.75
 
   observer!: IntersectionObserver;
+
+  resizeObserver!: ResizeObserver;
 
   #pageCache: Map<string, MRImage> = new Map();
 
@@ -145,9 +152,15 @@ export class MangaReader extends LitElement {
     super.attributeChangedCallback(name, oldValue, newValue)
   }
 
+  firstUpdated() {
+    this.container.addEventListener('mr-image-load', (e) => {
+      if(this.scaleType === 'fit-screen') this.resizeImage(e.detail.target)
+    })
+  }
+
   updated(changedProperties: PropertyValueMap<any>) {
     if (changedProperties.has("mode")) {
-      const prevMode: string = changedProperties.get('mode')
+      const prevMode: Mode | undefined = changedProperties.get('mode')
       if (this.mode === 'webtoon') {
         this.observer?.disconnect()
         this.setUpWebtoonIntersectionObserver()
@@ -183,6 +196,13 @@ export class MangaReader extends LitElement {
       changedProperties.has('webtoonPadding')
     ) {
       if (!(this.webtoonPadding > 45)) this.container.style.setProperty('--mr-webtoon-padding', this.webtoonPadding + "%")
+    }
+
+    if (changedProperties.has('scaleType')) {
+      if (this.scaleType === 'fit-screen') {
+        this.setUpResizeObserver();
+      }
+      if (changedProperties.get('scaleType') === 'fit-screen') this.resizeObserver.disconnect();
     }
   }
 
@@ -228,7 +248,7 @@ export class MangaReader extends LitElement {
     }
     return html`
       <div style='position: relative'>
-        <div 
+        <div
           part='container'
           @click=${this.#clickHandler}
           id='container'
@@ -363,6 +383,32 @@ export class MangaReader extends LitElement {
     this.container.querySelectorAll('[data-v-page-no]').forEach(el => this.observer.observe(el))
   }
 
+  setUpResizeObserver() {
+    const resizeListener = debounce(() => {
+      const pages = this.container.querySelectorAll('mr-image')
+      for (const page of pages) {
+        this.resizeImage(page)
+      }
+    }, 200)
+
+    const cb = () => {
+      this.resizeImage(this.#getImage(this.currentPage)!)
+      resizeListener();
+    }
+    this.resizeObserver = new ResizeObserver(cb)
+    cb();
+    this.resizeObserver.observe(this.container)
+  }
+
+  resizeImage(page: MRImage) {
+    if (page.scrollHeight > page.clientHeight) {
+      page.classList.remove('fit-width')
+    }
+    else if (page.scrollWidth > page.clientWidth) {
+      page.classList.add('fit-width')
+    }
+  }
+
   /*
   ** This resets the Scroll position for the elements 2 elements before and after the current page
   ** So if the current page is 1, it will set the scroll position for page 3 to 0
@@ -379,8 +425,12 @@ export class MangaReader extends LitElement {
     }
   }
 
-  #getPage(num: number | string): null | MRImage {
+  #getPage(num: number | string): null | HTMLDivElement {
     return this.container.querySelector(`[data-page-no="${num}"]`)
+  }
+
+  #getImage(num: number | string): null | MRImage {
+    return this.container.querySelector("#page-" + num)
   }
 
   #preloadImages() {
