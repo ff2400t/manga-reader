@@ -4,10 +4,11 @@ import { MangaReader } from './manga-reader';
 import { when } from 'lit/directives/when.js';
 
 const props: string[] = ["mode", "dir", "scaleType", 'webtoonPadding']
+
 MangaReader
 
 @customElement('manga-reader-with-ui')
-export default class MRWithUI extends LitElement {
+export default class MangaReaderWithUI extends LitElement {
 
 	@query('manga-reader')
 	reader!: MangaReader;
@@ -38,6 +39,7 @@ export default class MRWithUI extends LitElement {
 		for (const prop of props) {
 			const value = localStorage.getItem("mr-" + prop)
 			if (value) {
+				// @ts-ignore
 				this[prop] = value
 			}
 		}
@@ -53,7 +55,9 @@ export default class MRWithUI extends LitElement {
 	updated(changedProperties: PropertyValues) {
 		for (const prop of props) {
 			if (changedProperties.has(prop)) {
+				// @ts-ignore
 				localStorage.setItem("mr-" + prop, this[prop])
+				// @ts-ignore
 				this.reader[prop] = this[prop]
 			}
 		}
@@ -104,7 +108,8 @@ export default class MRWithUI extends LitElement {
 	}
 
 	handleInput(event: InputEvent) {
-		this[event.target.id] = event.target.value;
+		// @ts-ignore
+		this[event.target?.id! as string] = event.target?.value! as string;
 	}
 
 	static styles = css`  
@@ -135,6 +140,6 @@ export default class MRWithUI extends LitElement {
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'manga-reader-with-ui': MRWithUI;
+		'manga-reader-with-ui': MangaReaderWithUI;
 	}
 }
