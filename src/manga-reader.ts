@@ -88,18 +88,19 @@ export class MangaReader extends LitElement {
   }
 
   shouldUpdate(changedProperties: PropertyValues<this>) {
-    if (changedProperties.size === 1 && changedProperties.has("currentPage")) return false
+    const isSinglePropUpdate = changedProperties.size === 1
+    if (isSinglePropUpdate && changedProperties.has("currentPage")) return false
     // undefined check is to ensure that this is not the first render
-    else if (
+    if (
       changedProperties.has('preloadNo')
       && changedProperties.get('preloadNo') !== undefined
       && this.preloadNo > changedProperties.get('preloadNo')
     ) {
       this.#preloadImages();
-      return false
+      if (isSinglePropUpdate) return false
     }
     // undefined check is to ensure that this is not the first render
-    else if (
+    if (
       changedProperties.has('showTouchIndicator')
       && changedProperties.get('showTouchIndicator') !== undefined
     ) {
@@ -111,14 +112,7 @@ export class MangaReader extends LitElement {
         this.touchIndicator.style.display = 'none'
         this.touchIndicator.removeEventListener('click', this.#touchIndicatorHandler.bind(this))
       }
-      return false;
-    }
-    else if (
-      changedProperties.has('webtoonPadding')
-      && changedProperties.get('webtoonPadding') !== undefined
-    ) {
-      if(!(this.webtoonPadding > 45)) this.container.style.setProperty('--mr-webtoon-padding', this.webtoonPadding + "%")
-      return false
+      if (isSinglePropUpdate) return false
     }
     return true
   }
@@ -184,6 +178,11 @@ export class MangaReader extends LitElement {
             : currentPage = Math.ceil(currentPage / 2)
       }
       this.gotoPage(currentPage)
+    }
+    if (
+      changedProperties.has('webtoonPadding')
+    ) {
+      if (!(this.webtoonPadding > 45)) this.container.style.setProperty('--mr-webtoon-padding', this.webtoonPadding + "%")
     }
   }
 
@@ -288,10 +287,10 @@ export class MangaReader extends LitElement {
         })
       }
     } else {
-      if(action === Action.Middle){ 
+      if (action === Action.Middle) {
         if (typeof this.handleMiddleClick === "function") this.handleMiddleClick()
       } else {
-        let change = action === Action. Prev ? -1 : 1; 
+        let change = action === Action.Prev ? -1 : 1;
         change *= this.dir === 'rtl' ? -1 : 1
         this.gotoPage(this.currentPage + change)
       }
@@ -397,7 +396,6 @@ export class MangaReader extends LitElement {
       image.addEventListener('mr-image-load', () => this.#preloadCallBack())
     }
     else image.addEventListener('mr-image-load', () => this.#preloadCallBack())
-
   }
 
   #preloadCallBack() {
