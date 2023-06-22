@@ -58,15 +58,19 @@
   margin: auto;
 }
 
-.container.double-page mr-image:first-child::part(img) {
+.container.double-page mr-image {
+  width: auto;
+}
+
+.double-page mr-image:first-child {
   margin-inline: auto 0;
 }
 
-.container.double-page mr-image:last-child::part(img) {
+.double-page mr-image:last-child {
   margin-inline: 0 auto;
 }
 
-.container.double-page mr-image:only-child::part(img) {
+.double-page mr-image:only-child {
   margin-inline: auto;
 }
 
