@@ -8,31 +8,31 @@
   --mr-webtoon-padding: 0%;
 }
 
-#container {
+.container {
   display: grid;
   height: var(--mr-height);
   width: var(--mr-width);
   background: var(--mr-bg)
 }
 
-#container:not(.webtoon) {
+.container:not(.webtoon) {
   overflow-x: scroll;
   scroll-snap-type: x mandatory;
   grid-auto-flow: column;
   grid-auto-columns: var(--mr-width);
 }
 
-#container.vertical {
+.container.vertical {
   scroll-snap-type: y mandatory;
   grid-auto-flow: row;
   grid-auto-rows: var(--mr-height);
 }
 
-#container .page {
+.page {
   contain: layout;
 }
 
-#container:not(.webtoon) .page {
+.container:not(.webtoon) .page {
   scroll-snap-align: center;
   width: var(--mr-width);
   height: var(--mr-height);
@@ -46,27 +46,27 @@
 */
 }
 
-#container:not(.webtoon) mr-image {
+.container:not(.webtoon) mr-image {
   width: 100%;
   height: 100%;
 }
 
-#container:not(.webtoon) mr-image::part(img) {
+.container:not(.webtoon) mr-image::part(img) {
   display: block;
   width: auto;
   height: 100%;
   margin: auto;
 }
 
-#container.double-page mr-image:first-child::part(img) {
+.container.double-page mr-image:first-child::part(img) {
   margin-inline: auto 0;
 }
 
-#container.double-page mr-image:last-child::part(img) {
+.container.double-page mr-image:last-child::part(img) {
   margin-inline: 0 auto;
 }
 
-#container.double-page mr-image:only-child::part(img) {
+.container.double-page mr-image:only-child::part(img) {
   margin-inline: auto;
 }
 
@@ -74,21 +74,21 @@
 fit-height is the Default mode for Horizontal Reader so we just
 don't add any additional css to make that work
 */
-#container:not(.webtoon)[data-scale-type="fit-width"] mr-image {
+.container:not(.webtoon)[data-scale-type="fit-width"] mr-image {
   display: flex;
   align-items: center;
 }
 
-#container:not(.webtoon)[data-scale-type="fit-width"] mr-image::part(img) {
+.container:not(.webtoon)[data-scale-type="fit-width"] mr-image::part(img) {
   width: 100%;
   height: auto;
 }
 
-#container:not(.webtoon)[data-scale-type="stretch"] mr-image::part(img) {
+.container:not(.webtoon)[data-scale-type="stretch"] mr-image::part(img) {
   width: 100%;
 }
 
-#container:not(.webtoon)[data-scale-type="original-size"] mr-image::part(img) {
+.container:not(.webtoon)[data-scale-type="original-size"] mr-image::part(img) {
   width: var(--natrual-width);
   height: var(--natrual-height);
 }
@@ -96,40 +96,31 @@ don't add any additional css to make that work
 /*
 since fit-height is the default case we only need to handle the landscape case
 */
-#container:not(.webtoon)[data-scale-type="smart-fit"] mr-image[orientation="landscape"]::part(img) {
+.container:not(.webtoon)[data-scale-type="smart-fit"] mr-image[orientation="landscape"]::part(img) {
   width: 100%;
   height: auto;
 }
 
-#container:not(.webtoon)[data-scale-type="smart-fit"] mr-image {
+.container:not(.webtoon)[data-scale-type="smart-fit"] mr-image {
   display: flex;
   align-items: center;
 }
 
-#container:not(.webtoon)[data-scale-type="fit-screen"] .page.fit-width mr-image::part(img) {
+.container:not(.webtoon)[data-scale-type="fit-screen"] .page.fit-width mr-image::part(img) {
   width: 100%;
   height: auto;
 }
 
-#container:not(.webtoon)[data-scale-type="fit-screen"] .page.fit-width mr-image {
+.container:not(.webtoon)[data-scale-type="fit-screen"] .page.fit-width mr-image {
   display: flex;
   align-items: center;
 }
 
 /* webtoon */
 
-#container.webtoon {
-  width: var(--mr-width);
-  height: var(--mr-height);
-  justify-items: center;
+.container.webtoon {
+  display: block;
   overflow-y: scroll;
-}
-
-.webtoon {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
 .webtoon mr-image::part(img) {

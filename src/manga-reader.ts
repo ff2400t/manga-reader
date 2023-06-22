@@ -62,7 +62,7 @@ export class MangaReader extends LitElement {
   @property()
   preloadNo: number = 1;
 
-  @query('#container', true)
+  @query('.container', true)
   container!: HTMLDivElement;
 
   @query('#touch-indicator', true)
@@ -251,8 +251,7 @@ export class MangaReader extends LitElement {
         <div
           part='container'
           @click=${this.#clickHandler}
-          id='container'
-          class='${classMap(classes)}'
+          class='container ${classMap(classes)}'
           dir=${this.dir}
           data-scale-type=${this.scaleType}
           >
