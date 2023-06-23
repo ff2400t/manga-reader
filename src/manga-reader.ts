@@ -416,11 +416,15 @@ export class MangaReader extends LitElement {
   #scrollReset() {
     const num = this.currentPage;
     if (num > 2) {
-      this.#getPage(num - 2)!.scrollTop = 0
+      const page  = this.#getPage(num - 2)
+      page!.scrollTop = 0
+      page!.scrollLeft = 0
     }
     const arr = this.#isDoublePageMode() ? this.#doublePagedArr : this.pages
     if (num < arr.length - 1) {
-      this.#getPage(num + 2)!.scrollTop = 0
+      const page  = this.#getPage(num + 2)
+      page!.scrollTop = 0
+      page!.scrollLeft = 0
     }
   }
 
