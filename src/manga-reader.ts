@@ -455,10 +455,12 @@ export class MangaReader extends LitElement {
         : (this.currentPage * 2) - 1);
 
     let num = 1
-    while (num <= this.preloadNo) {
+    const preloadImages = this.preloadNo * (this.#isDoublePageMode() ? 2 : 1)
+    while (num <= preloadImages) {
       let nextPage = currentPage + num
-      const image = (this.container.querySelector('#page-' + nextPage) as MRImage)
-      if (image && image.state === 'idle') image.load();
+      const image = this.#getImage(nextPage);
+      if (!image) break;
+      if (image.state === 'idle') image.load();
       num++
     }
   }
