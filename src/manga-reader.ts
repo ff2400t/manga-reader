@@ -5,6 +5,7 @@ import './mr-image';
 import MRImage from './mr-image';
 import styles from './styles.css?inline';
 import debounce from './debounce';
+import { styleMap } from 'lit/directives/style-map.js';
 
 type Mode = 'horizontal' | 'vertical' | 'double-page' | 'double-page-odd' | 'webtoon';
 type ReadingDirection = 'rtl' | 'ltr'
@@ -13,12 +14,13 @@ for fit-screen, we assume that the layout is fit-height as default, but when we 
 */
 type ScaleType = 'fit-screen' | 'fit-width' | 'fit-height' | 'stretch' | 'original-size' | "smart-fit";
 
-type OverflowState = "none" | "vertical" | "horizontal"
 enum Action {
   Prev,
   Next,
   Middle
 }
+
+const triggerProps: (keyof MangaReader)[] = ['pages', 'mode', 'scaleType']
 
 /**
  * Manga Reader component
@@ -95,21 +97,16 @@ export class MangaReader extends LitElement {
   }
 
   shouldUpdate(changedProperties: PropertyValues<this>) {
-    const isSinglePropUpdate = changedProperties.size === 1
-    if (isSinglePropUpdate && changedProperties.has("currentPage")) return false
-    // undefined check is to ensure that this is not the first render
+    const shouldUpdate= triggerProps.some((e) => changedProperties.has(e));
+    
     if (
-      changedProperties.has('preloadNo')
-      && changedProperties.get('preloadNo') !== undefined
+      changedProperties.get('preloadNo') !== undefined
       && this.preloadNo > changedProperties.get('preloadNo')
     ) {
       this.#preloadImages();
-      if (isSinglePropUpdate) return false
     }
-    // undefined check is to ensure that this is not the first render
     if (
-      changedProperties.has('showTouchIndicator')
-      && changedProperties.get('showTouchIndicator') !== undefined
+      changedProperties.get('showTouchIndicator') !== undefined
     ) {
       if (this.showTouchIndicator) {
         this.touchIndicator.style.display = 'grid';
@@ -119,9 +116,17 @@ export class MangaReader extends LitElement {
         this.touchIndicator.style.display = 'none'
         this.touchIndicator.removeEventListener('click', this.#touchIndicatorHandler.bind(this))
       }
-      if (isSinglePropUpdate) return false
     }
-    return true
+
+    if(changedProperties.get('dir') !== undefined){
+      this.container.dir = this.dir
+    }
+
+    if (changedProperties.get('webtoonPadding') !== undefined) {
+      if (!(this.webtoonPadding > 45)) this.container?.style.setProperty('--mr-webtoon-padding', this.webtoonPadding + "%")
+    }
+
+    return shouldUpdate
   }
 
   willUpdate(changedProperties: PropertyValues<this>) {
@@ -154,7 +159,7 @@ export class MangaReader extends LitElement {
 
   firstUpdated() {
     this.container.addEventListener('mr-image-load', (e) => {
-      if(this.scaleType === 'fit-screen') this.resizeImage(e.detail.target)
+      if (this.scaleType === 'fit-screen') this.resizeImage(e.detail.target)
     })
   }
 
@@ -191,11 +196,6 @@ export class MangaReader extends LitElement {
             : currentPage = Math.ceil(currentPage / 2)
       }
       this.gotoPage(currentPage)
-    }
-    if (
-      changedProperties.has('webtoonPadding')
-    ) {
-      if (!(this.webtoonPadding > 45)) this.container.style.setProperty('--mr-webtoon-padding', this.webtoonPadding + "%")
     }
 
     if (changedProperties.has('scaleType')) {
@@ -251,6 +251,7 @@ export class MangaReader extends LitElement {
         <div
           part='container'
           @click=${this.#clickHandler}
+          style=${styleMap({"--mr-webtoon-padding" : this.webtoonPadding + "%"})}
           class='container ${classMap(classes)}'
           dir=${this.dir}
           data-scale-type=${this.scaleType}
@@ -416,13 +417,13 @@ export class MangaReader extends LitElement {
   #scrollReset() {
     const num = this.currentPage;
     if (num > 2) {
-      const page  = this.#getPage(num - 2)
+      const page = this.#getPage(num - 2)
       page!.scrollTop = 0
       page!.scrollLeft = 0
     }
     const arr = this.#isDoublePageMode() ? this.#doublePagedArr : this.pages
     if (num < arr.length - 1) {
-      const page  = this.#getPage(num + 2)
+      const page = this.#getPage(num + 2)
       page!.scrollTop = 0
       page!.scrollLeft = 0
     }
