@@ -81,24 +81,24 @@ export class MangaReader extends LitElement {
 
   observer!: IntersectionObserver;
 
-  resizeObserver!: ResizeObserver;
+  resizeObserver: ResizeObserver | undefined;
 
   #pageCache: Map<string, MRImage> = new Map();
 
   connectedCallback() {
     super.connectedCallback()
     this.tabIndex = 0;
-    this.addEventListener('keydown', this.#keyHandler.bind(this))
+    this.addEventListener('keydown', this.#keyHandler)
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.removeEventListener('keydown', this.#keyHandler.bind(this))
+    this.removeEventListener('keydown', this.#keyHandler)
   }
 
   shouldUpdate(changedProperties: PropertyValues<this>) {
-    const shouldUpdate= triggerProps.some((e) => changedProperties.has(e));
-    
+    const shouldUpdate = triggerProps.some((e) => changedProperties.has(e));
+
     if (
       changedProperties.get('preloadNo') !== undefined
       && this.preloadNo > changedProperties.get('preloadNo')
@@ -110,15 +110,15 @@ export class MangaReader extends LitElement {
     ) {
       if (this.showTouchIndicator) {
         this.touchIndicator.style.display = 'grid';
-        this.touchIndicator.addEventListener('click', this.#touchIndicatorHandler.bind(this))
+        this.touchIndicator.addEventListener('click', this.#touchIndicatorHandler)
       }
       else {
         this.touchIndicator.style.display = 'none'
-        this.touchIndicator.removeEventListener('click', this.#touchIndicatorHandler.bind(this))
+        this.touchIndicator.removeEventListener('click', this.#touchIndicatorHandler)
       }
     }
 
-    if(changedProperties.get('dir') !== undefined){
+    if (changedProperties.get('dir') !== undefined) {
       this.container.dir = this.dir
     }
 
@@ -202,7 +202,7 @@ export class MangaReader extends LitElement {
       if (this.scaleType === 'fit-screen') {
         this.setUpResizeObserver();
       }
-      if (changedProperties.get('scaleType') === 'fit-screen') this.resizeObserver.disconnect();
+      if (changedProperties.get('scaleType') === 'fit-screen') this.resizeObserver?.disconnect();
     }
   }
 
@@ -251,7 +251,7 @@ export class MangaReader extends LitElement {
         <div
           part='container'
           @click=${this.#clickHandler}
-          style=${styleMap({"--mr-webtoon-padding" : this.webtoonPadding + "%"})}
+          style=${styleMap({ "--mr-webtoon-padding": this.webtoonPadding + "%" })}
           class='container ${classMap(classes)}'
           dir=${this.dir}
           data-scale-type=${this.scaleType}
@@ -317,7 +317,7 @@ export class MangaReader extends LitElement {
     }
   }
 
-  #keyHandler(event: KeyboardEvent) {
+  #keyHandler = (event: KeyboardEvent) => {
     const key = event.key
     if (this.mode === 'webtoon') {
       const scrollAmount = this.container.offsetHeight * this.webtoonScrollAmount
@@ -511,7 +511,7 @@ export class MangaReader extends LitElement {
   ** This will shows the touch area grid and the action 
   ** When clicked it will trigger an opacity animation. The duration of the animatin can be customized by passing that as the first argument
   */
-  #touchIndicatorHandler() {
+  #touchIndicatorHandler = () => {
     this.touchIndicator.animate([{ opacity: 0 }], { duration: 500 }).onfinish = () => {
       this.showTouchIndicator = false;
     }
