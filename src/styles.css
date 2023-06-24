@@ -92,6 +92,10 @@ don't add any additional css to make that work
   width: 100%;
 }
 
+.container:not(.webtoon)[data-scale-type="original-size"] mr-image {
+  display: flex
+}
+
 .container:not(.webtoon)[data-scale-type="original-size"] mr-image::part(img) {
   width: var(--natrual-width);
   height: var(--natrual-height);
