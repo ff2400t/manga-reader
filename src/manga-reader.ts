@@ -2,7 +2,7 @@ import { LitElement, PropertyValueMap, PropertyValues, css, html, nothing, rende
 import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js';
 import './mr-image';
-import MRImage from './mr-image';
+import MRImage, { MRImageLoad } from './mr-image';
 import styles from './styles.css?inline';
 import debounce from './debounce';
 import { styleMap } from 'lit/directives/style-map.js';
@@ -159,7 +159,8 @@ export class MangaReader extends LitElement {
 
   firstUpdated() {
     this.container.addEventListener('mr-image-load', (e) => {
-      if (this.scaleType === 'fit-screen') this.resizeImage(e.detail.target)
+      let event = e as MRImageLoad
+      if (this.scaleType === 'fit-screen') this.resizeImage(event.detail)
     })
   }
 
