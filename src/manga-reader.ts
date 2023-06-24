@@ -385,14 +385,15 @@ export class MangaReader extends LitElement {
 
   setUpResizeObserver() {
     const resizeListener = debounce(() => {
-      const pages = this.container.querySelectorAll('mr-image')
-      for (const page of pages) {
-        this.resizeImage(page)
+      const images = this.container.querySelectorAll('mr-image')
+      for (const image of images) {
+        this.resizeImage(image)
       }
     }, 200)
 
     const cb = () => {
-      this.resizeImage(this.#getImage(this.currentPage)!)
+      const currentImage = this.#getImage(this.currentPage)!
+      this.resizeImage(currentImage)
       resizeListener();
     }
     this.resizeObserver = new ResizeObserver(cb)
@@ -400,12 +401,12 @@ export class MangaReader extends LitElement {
     this.resizeObserver.observe(this.container)
   }
 
-  resizeImage(page: MRImage) {
-    if (page.scrollHeight > page.clientHeight) {
-      page.classList.remove('fit-width')
+  resizeImage(image: MRImage) {
+    if (image.scrollHeight > image.clientHeight) {
+      image.classList.remove('fit-width')
     }
-    else if (page.scrollWidth > page.clientWidth) {
-      page.classList.add('fit-width')
+    else if (image.scrollWidth > image.clientWidth) {
+      image.classList.add('fit-width')
     }
   }
 

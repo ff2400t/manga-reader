@@ -88,11 +88,6 @@ export default class MRImage extends LitElement {
       this.objectURL = URL.createObjectURL(blob)
       this.state = 'done'
 
-      const event = new CustomEvent('mr-image-load', {
-        composed: true,
-        bubbles: true
-      })
-      this.dispatchEvent(event)
     } catch {
       this.state = 'failure'
     }
@@ -117,6 +112,14 @@ export default class MRImage extends LitElement {
     this.orientation = img.naturalWidth > img.naturalHeight ? 'landscape' : 'portrait'
     img.style.setProperty('--natural-width', width + "px");
     img.style.setProperty('--natural-height', height + "px");
+    const event = new CustomEvent('mr-image-load', {
+      detail: {
+        target: this
+      },
+      composed: true,
+      bubbles: true
+    })
+    this.dispatchEvent(event)
   }
 
   async retry() {
