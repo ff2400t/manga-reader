@@ -13,6 +13,9 @@ export default class MangaReaderWithUI extends LitElement {
 	@query('manga-reader')
 	reader!: MangaReader;
 
+	@query('#scaleType')
+	scaleTypeSelect!: HTMLSelectElement;
+
 	@query('.controls')
 	controls!: HTMLFormElement;
 
@@ -72,6 +75,8 @@ export default class MangaReaderWithUI extends LitElement {
 		if (changedProperties.has('pages') && this.pages.length > 0) {
 			this.reader.pages = this.pages
 		}
+
+		this.scaleTypeSelect.value = this.scaleType
 	}
 
 	render() {
