@@ -1,7 +1,9 @@
 import { LitElement, PropertyValueMap, PropertyValues } from 'lit';
+import './mr-image';
+import MRImage from './mr-image';
 type Mode = 'horizontal' | 'vertical' | 'double-page' | 'double-page-odd' | 'webtoon';
 type ReadingDirection = 'rtl' | 'ltr';
-type ScaleType = 'fitWidth' | 'fitHeight';
+export type ScaleType = 'fit-screen' | 'fit-width' | 'fit-height' | 'stretch' | 'original-size' | "smart-fit";
 /**
  * Manga Reader component
  */
@@ -12,6 +14,8 @@ export declare class MangaReader extends LitElement {
     dir: ReadingDirection;
     currentPage: number;
     scaleType: ScaleType;
+    showTouchIndicator: boolean;
+    webtoonPadding: number;
     handleMiddleClick: () => void;
     /**
      * No of images to preload after the current Image
@@ -20,16 +24,13 @@ export declare class MangaReader extends LitElement {
     preloadNo: number;
     container: HTMLDivElement;
     touchIndicator: HTMLDivElement;
-    doublePagedArr: Array<{
-        url: string;
-        index: number;
-    }[]>;
     /**
      * Amount to scroll during a click event in webtoon Mode
      * Number between 0 and 1
      */
     webtoonScrollAmount: number;
     observer: IntersectionObserver;
+    resizeObserver: ResizeObserver | undefined;
     connectedCallback(): void;
     disconnectedCallback(): void;
     shouldUpdate(changedProperties: PropertyValues<this>): boolean;
@@ -40,12 +41,14 @@ export declare class MangaReader extends LitElement {
     render(): import("lit").TemplateResult<1>;
     /**
      * Go to a Page with a particular page number
-     * This will return Boolean to indicate whether the page change was successfull
+     * and this also checks if the page should exist or not
+     * This will return Boolean to indicate whether the page changed was successfull
      */
     gotoPage(num: number): boolean;
     setUpHorizontalIntersectionObserver(): void;
     setUpWebtoonIntersectionObserver(): void;
-    showTouchIndicator(duration?: number): void;
+    setUpResizeObserver(): void;
+    resizeImage(image: MRImage): void;
     static styles: import("lit").CSSResult;
 }
 declare global {

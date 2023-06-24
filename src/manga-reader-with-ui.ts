@@ -130,9 +130,10 @@ export default class MangaReaderWithUI extends LitElement {
 	}
 
 	handleInput(event: InputEvent) {
-		// @ts-ignore
-		const prop: keyof this = event.target?.id!
+		const target = event.target as HTMLInputElement
+		const prop  = target .id!
 		const val: string = (event.target as HTMLInputElement).value;
+		// @ts-ignore
 		this[prop] = val;
 	}
 
