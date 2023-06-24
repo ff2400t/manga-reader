@@ -1,9 +1,9 @@
 import { customElement, property, query } from 'lit/decorators.js';
-import { LitElement, PropertyValues, css, html } from 'lit';
-import { MangaReader } from './manga-reader';
+import { LitElement, PropertyValues, css, html, nothing } from 'lit';
+import { MangaReader, ScaleType } from './manga-reader';
 import { when } from 'lit/directives/when.js';
 
-const props: string[] = ["mode", "dir", "scaleType", 'webtoonPadding']
+const props: (keyof MangaReaderWithUI)[] = ["mode", "dir", "scaleType", 'webtoonPadding']
 
 MangaReader
 
@@ -26,7 +26,7 @@ export default class MangaReaderWithUI extends LitElement {
 	dir = 'ltr'
 
 	@property()
-	scaleType = "fit-height"
+	scaleType: ScaleType = "fit-height"
 
 	@property()
 	webtoonPadding = 0;
@@ -47,9 +47,6 @@ export default class MangaReaderWithUI extends LitElement {
 
 	willUpdate(changedProperties: PropertyValues) {
 		if (changedProperties.has('mode')) {
-			if (this.mode === 'webtoon' && this.reader) {
-				this.reader.webtoonPadding = this.webtoonPadding;
-			}
 			if (this.mode.startsWith('double') && (this.scaleType === 'fit-screen' || this.scaleType === 'smart-fit')) {
 				this.scaleType = 'fit-height'
 			}
@@ -78,7 +75,14 @@ export default class MangaReaderWithUI extends LitElement {
 	}
 
 	render() {
-		return html`<manga-reader></manga-reader>
+		return html`<manga-reader
+				.pages=${this.pages}
+				.mode=${this.mode}
+				.dir=${this.dir}
+				.scaleType=${this.scaleType}
+				.webtoonPadding=${this.webtoonPadding}
+				.showTouchIndicator=${this.showTouchIndicator}>
+			</manga-reader>
 			
       <form class='controls' @input=${this.handleInput}> 
           <label  for='mode'>Mode: </label>
@@ -109,9 +113,10 @@ export default class MangaReaderWithUI extends LitElement {
             <option value="stretch">Stretch</option>
             <option value="original-size">Original Size</option>
             
-						${when(!this.mode.startsWith('double'), () =>
-				html`<option value="smart-fit">Smart Fit</option>
-								<option value="fit-screen">Fit screen</option>`)
+						${when(!this.mode.startsWith('double'),
+				() => html`<option value="smart-fit">Smart Fit</option>
+								<option value="fit-screen">Fit screen</option>`,
+				() => nothing)
 				} 
 		          </select>`)
 			}
@@ -121,7 +126,9 @@ export default class MangaReaderWithUI extends LitElement {
 
 	handleInput(event: InputEvent) {
 		// @ts-ignore
-		this[event.target?.id! as string] = event.target?.value! as string;
+		const prop: keyof this = event.target?.id!
+		const val: string = (event.target as HTMLInputElement).value;
+		this[prop] = val;
 	}
 
 	static styles = css`  

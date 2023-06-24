@@ -12,7 +12,7 @@ type ReadingDirection = 'rtl' | 'ltr'
 /*
 for fit-screen, we assume that the layout is fit-height as default, but when we have to switch to fit-width
 */
-type ScaleType = 'fit-screen' | 'fit-width' | 'fit-height' | 'stretch' | 'original-size' | "smart-fit";
+export type ScaleType = 'fit-screen' | 'fit-width' | 'fit-height' | 'stretch' | 'original-size' | "smart-fit";
 
 enum Action {
   Prev,
