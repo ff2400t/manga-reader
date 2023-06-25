@@ -15,9 +15,9 @@ for fit-screen, we assume that the layout is fit-height as default, but when we 
 export type ScaleType = 'fit-screen' | 'fit-width' | 'fit-height' | 'stretch' | 'original-size' | "smart-fit";
 
 enum Action {
-  Prev,
-  Next,
-  Middle
+  Prev = -1,
+  Middle = 0,
+  Next = 1
 }
 
 const triggerProps: (keyof MangaReader)[] = ['pages', 'mode', 'scaleType']
@@ -295,6 +295,7 @@ export class MangaReader extends LitElement {
 
   #clickHandler(event: MouseEvent) {
     const action = this.#getTouchAction(event)
+    console.log(action)
     if (this.mode === 'webtoon') {
       if (action === Action.Middle) {
         if (typeof this.handleMiddleClick === "function") this.handleMiddleClick()
@@ -311,8 +312,7 @@ export class MangaReader extends LitElement {
       if (action === Action.Middle) {
         if (typeof this.handleMiddleClick === "function") this.handleMiddleClick()
       } else {
-        let change = action === Action.Prev ? -1 : 1;
-        change *= this.dir === 'rtl' ? -1 : 1
+        let change = action;
         this.gotoPage(this.currentPage + change)
       }
     }
@@ -503,7 +503,7 @@ export class MangaReader extends LitElement {
 
     if (this.dir === 'rtl') {
       if (result === Action.Next) result = Action.Prev
-      if (result === Action.Prev) result = Action.Next
+      else if (result === Action.Prev) result = Action.Next
     }
 
     return result
