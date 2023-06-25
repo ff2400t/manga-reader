@@ -63,6 +63,13 @@ export default class MangaReaderWithUI extends LitElement {
 		this.reader.handleMiddleClick = () => {
 			this.controls.classList.toggle('open')
 		}
+		addEventListener("fullscreenchange", () => {
+			if (!document.fullscreenElement) {
+				this.container.querySelector('button')!.innerText = 'Exit Fullscreen'
+			} else {
+				this.container.querySelector('button')!.innerText = 'Enter Fullscreen'
+			}
+		})
 	}
 
 	updated(changedProperties: PropertyValues) {
@@ -106,12 +113,12 @@ export default class MangaReaderWithUI extends LitElement {
             <option value="double-page-odd">Double Page Odd</option>
           </select>
 
-			${when(
+	${when(
 			this.mode === 'webtoon',
 			() => html`
           <label for='webtoonPadding'>Padding</label>
           <input .value=${this.webtoonPadding} name='webtoonPadding' id='webtoonPadding' type='range' min="0" max='45' />
-        ` ,
+	     ` ,
 			() => html`
           <label for='dir'>Direction </label>
           <select .value=${this.dir} name='dir' id='dir' default='ltr'>
@@ -125,16 +132,16 @@ export default class MangaReaderWithUI extends LitElement {
             <option value="stretch">Stretch</option>
             <option value="original-size">Original Size</option>
             
-						${when(!this.mode.startsWith('double'),
+				${when(!this.mode.startsWith('double'),
 				() => html`<option value="smart-fit">Smart Fit</option>
-								<option value="fit-screen">Fit screen</option>`,
+						<option value="fit-screen">Fit screen</option>`,
 				() => nothing)
 				} 
-		          </select>`)
+		         </select>`)
 			}
 			</form>
 			</div>
-			`
+		`
 	}
 
 	handleInput(event: InputEvent) {
@@ -149,11 +156,8 @@ export default class MangaReaderWithUI extends LitElement {
 		if (document.fullscreenEnabled) {
 			if (!document.fullscreenElement) {
 				this.container.requestFullscreen()
-					.then(() => { this.container.querySelector('button')!.innerText = 'Exit Fullscreen' }
-					)
 			} else {
 				document.exitFullscreen()
-					.then(() => { this.container.querySelector('button')!.innerText = 'Enter Fullscreen' })
 			}
 		}
 	}
