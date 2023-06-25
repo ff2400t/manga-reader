@@ -13,6 +13,9 @@ export default class MangaReaderWithUI extends LitElement {
 	@query('manga-reader')
 	reader!: MangaReader;
 
+	@query('#container')
+	container!: HTMLDivElement;
+
 	@query('#scaleType')
 	scaleTypeSelect!: HTMLSelectElement;
 
@@ -80,7 +83,9 @@ export default class MangaReaderWithUI extends LitElement {
 	}
 
 	render() {
-		return html`<manga-reader
+		return html`
+			<div id='container'>
+			<manga-reader
 				.pages=${this.pages}
 				.mode=${this.mode}
 				.dir=${this.dir}
@@ -90,6 +95,8 @@ export default class MangaReaderWithUI extends LitElement {
 			</manga-reader>
 			
       <form class='controls' @input=${this.handleInput}> 
+					<div></div>
+					<button type='button' @click=${this.toggleFullscreen}>Enter Fullscreen</button>
           <label  for='mode'>Mode: </label>
           <select .value=${this.mode} name='mode' id='mode' selected='horizontal'>
             <option value="horizontal">Horizontal</option>
@@ -126,15 +133,29 @@ export default class MangaReaderWithUI extends LitElement {
 		          </select>`)
 			}
 			</form>
+			</div>
 			`
 	}
 
 	handleInput(event: InputEvent) {
 		const target = event.target as HTMLInputElement
-		const prop  = target .id!
+		const prop = target.id!
 		const val: string = (event.target as HTMLInputElement).value;
 		// @ts-ignore
 		this[prop] = val;
+	}
+
+	toggleFullscreen() {
+		if (document.fullscreenEnabled) {
+			if (!document.fullscreenElement) {
+				this.container.requestFullscreen()
+					.then(() => { this.container.querySelector('button')!.innerText = 'Exit Fullscreen' }
+					)
+			} else {
+				document.exitFullscreen()
+					.then(() => { this.container.querySelector('button')!.innerText = 'Enter Fullscreen' })
+			}
+		}
 	}
 
 	static styles = css`  
