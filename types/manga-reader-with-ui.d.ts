@@ -2,6 +2,7 @@ import { LitElement, PropertyValues } from 'lit';
 import { MangaReader, ScaleType } from './manga-reader';
 export default class MangaReaderWithUI extends LitElement {
     reader: MangaReader;
+    container: HTMLDivElement;
     scaleTypeSelect: HTMLSelectElement;
     controls: HTMLFormElement;
     pages: never[];
@@ -16,6 +17,7 @@ export default class MangaReaderWithUI extends LitElement {
     updated(changedProperties: PropertyValues): void;
     render(): import("lit").TemplateResult<1>;
     handleInput(event: InputEvent): void;
+    toggleFullscreen(): void;
     static styles: import("lit").CSSResult;
 }
 declare global {
